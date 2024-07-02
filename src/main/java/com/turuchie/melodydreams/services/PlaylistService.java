@@ -1,6 +1,7 @@
 package com.turuchie.melodydreams.services;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,26 +23,41 @@ public class PlaylistService {
     private String uploadDir;
 
     @Autowired
-    private PlaylistRepository PlaylistRepo;
+    private PlaylistRepository playlistRepo;
 
-    public PlaylistService(PlaylistRepository PlaylistRepo) {
-        this.PlaylistRepo = PlaylistRepo;
+    public PlaylistService(PlaylistRepository playlistRepo) {
+        this.playlistRepo = playlistRepo;
     }
 
     public Playlist getOne(Long id) {
-        Optional<Playlist> Playlist = PlaylistRepo.findById(id);
+        Optional<Playlist> Playlist = playlistRepo.findById(id);
         return Playlist.isPresent() ? Playlist.get() : null;
     }
 
     public Playlist getOneTitle(String Title) {
-        Optional<Playlist> Playlist = PlaylistRepo.findByTitle(Title);
+        Optional<Playlist> Playlist = playlistRepo.findByTitle(Title);
         return Playlist.isPresent() ? Playlist.get() : null;
     }
 
     public List<Playlist> getAll() {
-        return (List<Playlist>) PlaylistRepo.findAll();
+        return (List<Playlist>) playlistRepo.findAll();
     }
- 
+
+    // Method To Search Single Song
+	public List<Playlist> getPlaylistsByLetters(String letters) {
+	    List<Playlist> filteredPlaylists = new ArrayList<>();
+	    Iterable<Playlist> allPlaylists = playlistRepo.findAll();    
+
+	    for (Playlist playlist : allPlaylists) {
+	        String searchedPlaylistTitle = playlist.getTitle();
+	        if (searchedPlaylistTitle.contains(letters)) {
+	            filteredPlaylists.add(playlist);
+	        }
+	    }
+
+	    return filteredPlaylists;
+	}
+
     /**
      * Create a new Playlist.
      * @param Playlist The Playlist to create.
@@ -50,7 +66,7 @@ public class PlaylistService {
      */
     @Transactional
     public Playlist create(Playlist Playlist) throws IOException {
-        return PlaylistRepo.save(Playlist);
+        return playlistRepo.save(Playlist);
     }
 
     /**
@@ -59,7 +75,7 @@ public class PlaylistService {
      * @return True if the track is already submitted, false otherwise.
      */
     public boolean isTrackSubmitted(Playlist Playlist) {
-        return PlaylistRepo.existsByTitleAndUserId(Playlist.getTitle(), Playlist.getUser().getId());
+        return playlistRepo.existsByTitleAndUserId(Playlist.getTitle(), Playlist.getUser().getId());
     }
 
     /**
@@ -69,7 +85,7 @@ public class PlaylistService {
      */
     public Playlist savePlaylistToDatabase(Playlist Playlist) {
         try {
-            return PlaylistRepo.save(Playlist);
+            return playlistRepo.save(Playlist);
         } catch (Exception e) {
             System.err.println("Error saving the Playlist: " + e.getMessage());
             throw new SomeAppropriateException("Error saving the Playlist.", e);
@@ -111,15 +127,15 @@ public class PlaylistService {
     }
 
     public void delete(Long id) {
-        PlaylistRepo.deleteById(id);
+        playlistRepo.deleteById(id);
     }
 
     public Playlist getOrCreatePlaylistByTitle(String Title) {
-        Optional<Playlist> Playlist = PlaylistRepo.findByTitle(Title);
+        Optional<Playlist> Playlist = playlistRepo.findByTitle(Title);
         return Playlist.orElseGet(() -> {
             Playlist newPlaylist = new Playlist();
             newPlaylist.setTitle(Title);
-            return PlaylistRepo.save(newPlaylist);
+            return playlistRepo.save(newPlaylist);
         });
     }
 
@@ -128,7 +144,7 @@ public class PlaylistService {
         if (existingPlaylist == null) {
             Playlist newPlaylist = new Playlist();
             newPlaylist.setTitle(Title);
-            return PlaylistRepo.save(newPlaylist);
+            return playlistRepo.save(newPlaylist);
         }
         return existingPlaylist;
     }

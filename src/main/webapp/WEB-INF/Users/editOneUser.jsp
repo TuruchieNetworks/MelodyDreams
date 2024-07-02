@@ -177,6 +177,7 @@
 <script src="<c:url value='/scripts/player.js'/>"></script>
 <script src="<c:url value='/scripts/randomBackgrounds.js'/>"></script>
 <script src="<c:url value='/scripts/dynamicWidgets.js'/>"></script>
+<script src="<c:url value='/scripts/dynamicPlaylistWidgets.js'/>"></script>
 <script src="<c:url value='/scripts/loadedPanelEvents.js'/>"></script>
 <script src="<c:url value='/scripts/socials.js'/>"></script>
 <script src="<c:url value='/scripts/uploads.js'/>"></script>

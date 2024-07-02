@@ -24,7 +24,7 @@ import com.turuchie.melodydreams.services.SongService;
 import com.turuchie.melodydreams.services.UserService;
 import com.turuchie.melodydreams.utils.FileUtils;
 import com.turuchie.melodydreams.utils.MetricsUtil;
-import com.turuchie.melodydreams.utils.ArtistsUtils;
+import com.turuchie.melodydreams.utils.TrackMediaUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -45,21 +45,15 @@ public class LikedUserController {
 	@Autowired
 	private FileUtils fileUtil;
 
-	@SuppressWarnings("unused")
 	@Autowired
-	private MetricsUtil metricUtil;
- 
-	@SuppressWarnings("unused")
-	@Autowired
-	private ArtistsUtils artistsUtil;
+	private TrackMediaUtils trackMediaUtil;
 
 	@Autowired
 	public LikedUserController(UserService userServ, LikedUserService likedUserServ,
-		MetricsUtil metricUtil, SongService songServ, FileUtils fileUtil, ArtistsUtils artistsUtil) {
+		MetricsUtil metricUtil, SongService songServ, FileUtils fileUtil, TrackMediaUtils trackMediaUtil) {
         this.fileUtil = fileUtil;
         this.userServ = userServ;
-        this.artistsUtil = artistsUtil;
-        this.metricUtil = metricUtil;
+        this.trackMediaUtil = trackMediaUtil;
         this.likedUserServ = likedUserServ;
     }
 
@@ -117,17 +111,17 @@ public class LikedUserController {
 	    @Valid @ModelAttribute("LikedUser") LikedUser newLikedUser, 
 	    BindingResult result, Model model, HttpSession session) throws IOException {
 		Long userId = fileUtil.validateUserAndGetId(session);
-	    User likingUser = artistsUtil.getUser(userId);
-	    String likingUserName = artistsUtil.getUserName(likingUser);
+	    User likingUser = trackMediaUtil.getUser(userId);
+	    String likingUserName = trackMediaUtil.getUserName(likingUser);
 	    Long likingUserId = userId;
 
 	    if (userId == null) {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
 	    }
 
-	    User userLiked = artistsUtil.getUser(userToLikeId);
-	    Long userLikedId = artistsUtil.getUserId(userLiked);
-	    String userLikedName = artistsUtil.getUserName(userLiked);
+	    User userLiked = trackMediaUtil.getUser(userToLikeId);
+	    Long userLikedId = trackMediaUtil.getUserId(userLiked);
+	    String userLikedName = trackMediaUtil.getUserName(userLiked);
 
 	    if (result.hasErrors()) {
 	        return ResponseEntity.badRequest().body("Validation error");
@@ -135,13 +129,13 @@ public class LikedUserController {
 
 	    // Check if the relationship already exists
 	    if (likedUserServ.isRelationshipExists(userLikedId, likingUserId)) {
-	        return ResponseEntity.status(HttpStatus.CONFLICT).body(artistsUtil.generateLikeFailureNotification(userLiked));
+	        return ResponseEntity.status(HttpStatus.CONFLICT).body(trackMediaUtil.generateLikeFailureNotification(userLiked));
 	    }
 
 	    try {
-	    	artistsUtil.setNewLikeUserAttributes(newLikedUser, likingUser, userLikedId, likingUserId, userLikedName, likingUserName);
+	    	trackMediaUtil.setNewLikeUserAttributes(newLikedUser, likingUser, userLikedId, likingUserId, userLikedName, likingUserName);
 	        likedUserServ.create(newLikedUser);
-	        return ResponseEntity.ok(artistsUtil.generateLikeSuccessNotification(userLiked));
+	        return ResponseEntity.ok(trackMediaUtil.generateLikeSuccessNotification(userLiked));
 	    } catch (Exception e) {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
 	    }

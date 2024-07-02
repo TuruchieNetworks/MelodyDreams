@@ -28,7 +28,6 @@
 	<link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css"/>
 
 	<!-- YOUR own local CSS -->
-	<link rel="stylesheet" href="/css/main.css"/>
     <link rel="stylesheet" href="/styles/styles.css"/>
     <link rel="stylesheet" href="/styles/privateStyles.css"/>
 	<link rel="stylesheet" href="/styles/main_player.css"/>
@@ -84,9 +83,12 @@
         }
     </script>
 
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 <title>Create Song</title>
 </head>
-<body class="container-fluid p-6" style="background:aliceblue;background:rgba(13.2, 0.300, 30.22, 0.9);font-family:cursive; color: azure">
+<body class="panel-card" style="background:aliceblue;background:rgba(13.2, 0.300, 30.22, 0.9);font-family:cursive; color: azure">
 		
    	<nav id="navbar" class="playerCover imageCover" 
 	onmouseover="this.style.backgroundImage='url(${pageContext.request.contextPath}/img/purplecrowd-unsplash.jpg)'"
@@ -291,7 +293,7 @@
 					    onmouseover="this.style.backgroundImage='url(${pageContext.request.contextPath}/img/purplecrowd-unsplash.jpg)'"
 					 	onmouseout="changePlayerCover(this)" 
 					   	style=";background-repeat: no-repeat;background-position: center;background-size: cover;">
-					   	<a class="bluebtn mid-fonts word-slicer" href="/melodydreams/artist/${loggedInUser.id}" style="background:rgba(0.1, 0.2, 0.9, 0.7);">
+					   	<a class="bluebtn mid-fonts word-slicer" href="/melodydreams/artists/${loggedInUser.id}" style="background:rgba(0.1, 0.2, 0.9, 0.7);">
 			                <c:out value="${loggedInUser.firstName} Profile Access"/>
 			            </a>
 			        </li>
@@ -315,19 +317,23 @@
 	        </li>  
 	    </ul>
 	</nav>
-		<div class="mid-vert-margin"style="">
+		<div class="imageCover mid-vert-margin container-fluid p-8"style="">
 			<div class="">
 				<h1  class="main-greeting-panel mid-vert-margin" style="">
 					<a class="main-greeting word-slicer type-writer" href="/melodydreams/login" style="">
-						<c:out value="Add A New Track To The Melody Dreams Console ${loggedInUser.firstName}!"/>
+						<c:out value="Add A New Track To The Melody Dreams Console Today, ${currentDateTime} ${loggedInUser.firstName}!"/>
 					</a>	
 				</h1>
 				<form:form class="profileShowcase mid-hor-margin track-upload-form" method="post" action="/melodydreams/process/createNewTrack" enctype="multipart/form-data" modelAttribute="song">
-					<div class="over-flow profileShowcase imageCover">
+					<div class="over-flow imageCover profileShowcase">
 						<input type="hidden" name="user.id" value="${loggedInUser.id}" class="track-creation-input"/>
 						<!--form:errors path="*" cssClass="text-danger"/!-->
 					    <div class="form-group">
-					        <label style="text-align:center;width:100%;" class="bright-flash">Track Title</label>
+					        <label style="text-align:center;width:100%;" class="bright-flash">
+					        	<span>
+					        		<c:out value="Track Title"/>
+					        	</span>
+					        </label>
 					        <form:input path="trackTitle" class="form-control track-creation-input round-border-radius" placeholder="Please enter track title!" style=""/>
 					        <form:errors path="trackTitle" class="type-writer text-danger columnCover leadShowcase bold-fonts sm-vert-margin"/>
 					        <c:if test="${not empty trackTitleError}">
@@ -338,7 +344,11 @@
 					    </div> 
 	
 					    <div class="form-group">
-					        <label style="text-align:center;width:100%;" class="bright-flash">Track Artist</label>
+					        <label style="text-align:center;width:100%;" class="bright-flash">
+					        	<span>
+					        		<c:out value="Track Artist"/>
+					        	</span>
+					        </label>					        		
 					        <form:input path="trackArtist" class="form-control track-creation-input round-border-radius" placeholder="Please enter track artist"/>
 					        <form:errors path="trackArtist" class="type-writer text-danger columnCover leadShowcase bold-fonts sm-vert-margin"/>
 					        <c:if test="${not empty trackArtistError}">
@@ -349,12 +359,20 @@
 					    </div>
 	
 					    <div class="form-group">
-					        <label style="" class="bright-flash">Album</label>
+					        <label style="" class="bright-flash">
+					        	<span>
+					        		<c:out value="Album"/>
+					        	</span>
+					        </label>					        
 					        <form:input path="album" class="form-control track-creation-input round-border-radius" placeholder="Please enter track album"/>
 					    </div>
 	
 						<div class="form-group">
-						    <label style="" class="bright-flash">Genre</label>
+						    <label style="" class="bright-flash">
+					        	<span>
+					        		<c:out value="Genre"/>
+					        	</span>
+					        </label>		
 					        <form:errors path="genre" class="type-writer text-danger columnCover leadShowcase bold-fonts sm-vert-margin"/>
 					        <c:if test="${not empty genreError}">
 					        	<p class="type-writer text-danger columnCover leadShowcase bold-fonts sm-vert-margin">
@@ -399,7 +417,11 @@
 						    </div>
 						</div>           
 						<div class="">
-			                <label style="" class="bright-colors bright-flash">Track Descriptions</label>
+			                <label style="" class="bright-colors bright-flash">
+					        	<span>
+					        		<c:out value="Track Descriptions"/>
+					        	</span>
+					        </label>
 			                <form:errors path="description" class="type-writer text-danger columnCover leadShowcase bold-fonts sm-vert-margin"/>
 			                <form:textarea path="description" class="form-control track-creation-text-area round-border-radius" rows="5" maxlength="500" placeholder="Please Describe Your Track"></form:textarea>
 					        <c:if test="${not empty descriptionError}">
@@ -411,7 +433,7 @@
 					</div>
 		 
 					<c:if test="${not empty trackImageDataError or not empty audioDataError}">
-					    <div class="bg-danger  flexCover leadShowcase" style="">
+					    <div class="bg-danger flexCover leadShowcase" style="">
 					        <div class="  flexCover leadShowcase" style="color:rgba(323, 332, 320, 0.9); border-radius:5%; color:khaki;">
 					            <c:if test="${not empty trackImageDataError}">
 					                <p>${trackImageDataError}</p>
@@ -471,24 +493,34 @@
 
 					<div class="form-group bluebtn"style="">
 					  	<div class="form-group flexCover" style="">
-					    	<input type="submit" value="Add New Track" class="leadShowcase submit-track" id="submitBtn"/>
+					    	<input type="submit" value="Add New Track Today, ${currentDateTime}" class="leadShowcase submit-track" id="submitBtn"/>
 				 			<a href="/melodydreams/artists" class="btn btn-outline-warning leadShowcase back-btn" style="">GO BACK</a>
 					    </div>
 					</div>
+			    </div>
 			</form:form>
+		    <div id="" class="flex-panel bright-flash imageCover panel-card mid-vert-margin" style="">
+		        <div class="flex-panel sm-hor-margin" style="cursor:pointer">
+		        	<span id="" class="leadShowcase">
+		        		<c:out value="Creativity Lives Within!"/>
+			   		</span> 
+			        <!--<span id="id-play-panel-0" class="playpause-icon"></span>  Span to hold the play/pause icon -->
+		        	<span id="" class="rotate track-art upper-panel-play-btn">
+		   				<i id=""  class="rotate fa fa-pause-circle fa-5x"></i>
+			   		</span> 						      
+				 </div>
+		    </div> 
 		</div>
 	</div>
 </body>
 </html>
 <link rel="stylesheet" href="/styles/main_player.css"/>
 <link rel="stylesheet" href="/styles/privateStyles.css"/>
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 <!--  -->
 <script src="<c:url value='/scripts/player.js'/>"></script>
 <script src="<c:url value='/scripts/randomBackgrounds.js'/>"></script>
 <script src="<c:url value='/scripts/dynamicWidgets.js'/>"></script>
+<script src="<c:url value='/scripts/dynamicPlaylistWidgets.js'/>"></script>
 <script src="<c:url value='/scripts/loadedPanelEvents.js'/>"></script>
 <script src="<c:url value='/scripts/socials.js'/>"></script>
 <script src="<c:url value='/scripts/uploads.js'/>"></script>

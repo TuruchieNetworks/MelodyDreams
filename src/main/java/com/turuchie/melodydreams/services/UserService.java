@@ -1,6 +1,7 @@
 package com.turuchie.melodydreams.services;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -126,15 +127,20 @@ public class UserService {
 	    }
 	}
 
-    public List<User> getAllUsersMatchingSearchTerm(String searchTerm) {
-        List<User> users = userRepo.findAll();
-        return users.stream()
-                .filter(user ->
-                        (user.getFirstName() != null && user.getFirstName().contains(searchTerm)) ||
-                        (user.getLastName() != null && user.getLastName().contains(searchTerm))
-                )
-                .collect(Collectors.toList());
-    }
+	public List<User> getAllUsersMatchingSearchTerm(String searchTerm) {
+	    if (searchTerm == null || searchTerm.trim().isEmpty()) {
+	        return Collections.emptyList();
+	    }
+	    
+	    List<User> users = userRepo.findAll();
+	    return users.stream()
+	            .filter(user ->
+	                    (user.getFirstName() != null && user.getFirstName().contains(searchTerm)) ||
+	                    (user.getLastName() != null && user.getLastName().contains(searchTerm))
+	            )
+	            .collect(Collectors.toList());
+	}
+
 	
 	public User login(LoginUser loginUser, BindingResult result) {
 		if(result.hasErrors()) {

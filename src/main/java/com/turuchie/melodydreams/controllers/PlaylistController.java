@@ -1,8 +1,6 @@
  package com.turuchie.melodydreams.controllers;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +29,8 @@ import com.turuchie.melodydreams.services.PlaylistService;
 import com.turuchie.melodydreams.services.PlaylistSongsService;
 import com.turuchie.melodydreams.services.SongService;
 import com.turuchie.melodydreams.services.UserService;
+import com.turuchie.melodydreams.utils.ArtistsUtils;
+import com.turuchie.melodydreams.utils.DateUtil;
 import com.turuchie.melodydreams.utils.FileUtils;
 import com.turuchie.melodydreams.utils.MusicListUtils;
 
@@ -45,6 +45,9 @@ public class PlaylistController {
     private String uploadDir;
 
 	@Autowired
+	private UserService userServ;
+
+	@Autowired
 	private SongService songServ;
 
 	@Autowired
@@ -54,18 +57,20 @@ public class PlaylistController {
 	private PlaylistSongsService playlistSongServ;
 
 	@Autowired
-	private UserService userServ;
+	private FileUtils fileUtil;
 
 	@Autowired
-	private FileUtils fileUtil;
+	private DateUtil dateUtil;
+
+	@Autowired
+	private ArtistsUtils artistUtil;
 
 	@Autowired
 	private MusicListUtils musicListUtil;
 
 	@Autowired
-	public PlaylistController(PlaylistService playlistServ, 
-		PlaylistSongsService playlistSongServ, UserService userServ,
-		MusicListUtils musicListUtil, SongService songServ, FileUtils fileUtil) {
+	public PlaylistController(PlaylistService playlistServ,  UserService userServ, SongService songServ, 
+		PlaylistSongsService playlistSongServ, ArtistsUtils artistUtil, DateUtil dateUtil, MusicListUtils musicListUtil, FileUtils fileUtil) {
         this.userServ = userServ;
         this.songServ = songServ;
         this.fileUtil = fileUtil;
@@ -73,43 +78,51 @@ public class PlaylistController {
         this.musicListUtil = musicListUtil;
         this.playlistSongServ = playlistSongServ;
     }
+
 	public PlaylistController() {}
 
-
-    // Helper method to save file and return its bytes
-    @SuppressWarnings("unused")
-	private byte[] saveByteFile(MultipartFile file) throws IOException {
-        java.nio.file.Path filePath = Paths.get(uploadDir, file.getOriginalFilename());
-        Files.write(filePath, file.getBytes());
-        return Files.readAllBytes(filePath);
-    }
-
 	@GetMapping("/playlists")
-	public String songIndexPage(Model model, HttpSession session, HttpServletRequest request) {
+	public String playlistIndexPage(@RequestParam(value = "searchedPlaylist", required = false) String searchedPlaylist, 
+		Model model, HttpSession session, HttpServletRequest request) {
 		Long userId = (Long) session.getAttribute("user_id");
 	    if (userId == null){
 	    	return "redirect:/melodydreams/login";
 	    }    
 
-	    List<Song> allSongs = songServ.getAll();
+	    List<Playlist> allPlaylists = playlistServ.getAll();
 
-        // Prepare the music list JSON string using SongUtils
+	    // Handle search and display
+	    String trimmedSearchTerm = searchedPlaylist != null ? searchedPlaylist.trim() : null;
+	    if (trimmedSearchTerm != null && !trimmedSearchTerm.isEmpty()) {
+	        // If a non-empty search value is provided
+	        List<Playlist> searchedPlaylists = playlistServ.getPlaylistsByLetters(trimmedSearchTerm);
+	        musicListUtil.setPlaylistMusicList(model, request, searchedPlaylists);
+	    } else {
+	        // If the search bar is empty, display user playlists
+	        musicListUtil.setPlaylistMusicList(model, request, allPlaylists);
+	    }
+
+	    // Today's date 
+        dateUtil.addCurrentDateAttributes(model);
+
+        // Prepare the music list JSON string using PlaylistUtils
         musicListUtil.setMusicList(model, request);
-        musicListUtil.setUsersMusicList(model, request, userId);
+	    artistUtil.setArtistAttributes(model, userId);
 		User loggedInUser = userServ.getOne(userId);
 
 	    if (loggedInUser == null) {
 	        return "redirect:/melodydreams/login";
 	    }
 
+	    model.addAttribute("allPlaylists", allPlaylists);
 		model.addAttribute("loggedInUser", loggedInUser);
-		model.addAttribute("allSongs", allSongs);
 		model.addAttribute("allUsers", userServ.findAll());
-		return "TrackMedia/showAllPlaylists.jsp";
+		return "Playlists/showAllPlaylists.jsp";
 	}
 
 	@GetMapping("/playlists/{id}")
-	public String showOneSong(@PathVariable("id") Long id, Model model,
+	public String showOnePlaylist(@RequestParam(value = "searchedPlaylist", required = false) String searchedPlaylist, 
+		@PathVariable("playlistId") Long playlistId, Model model,
 		HttpSession session, HttpServletRequest request) throws IOException {
 	    Long userId = (Long) session.getAttribute("user_id");
 
@@ -122,26 +135,40 @@ public class PlaylistController {
 	        return "redirect:/melodydreams/login";
 	    }
 	    
-        // Prepare the music list JSON string using SongUtils
-	    Song song = songServ.getOne(id);
+        // Prepare the music list JSON string using PlaylistUtils
+	    Playlist playlist = playlistServ.getOne(playlistId);
 
-	    if (song == null) {
-	        // Handle the case where the song with the given id is not found
+	    if (playlist == null) {
+	        // Handle the case where the playlist with the given id is not found
 	        return "redirect:/melodydreams/playlists";
 	    }
 
-	    musicListUtil.setMusicList(model, request);
-        musicListUtil.setSingleMusicList(model, request, id);
-        //musicListUtil.setUsersMusicList(model, request, userId);
+	    Long playlistUserId = playlist.getUser().getId();
+        List<Playlist> userPlaylists = playlist.getUser().getPlaylists();
 
-        model.addAttribute("oneSong", song);
+        if (playlist == null || !playlist.getUser().getId().equals(userId)) {
+            return "redirect:/melodydreams/playlists"; // or some error handling mechanism
+        }
+        // Handle search and display
+	    String trimmedSearchTerm = searchedPlaylist != null ? searchedPlaylist.trim() : null;
+	    if (trimmedSearchTerm != null && !trimmedSearchTerm.isEmpty()) {
+	        // If a non-empty search value is provided
+	        List<Playlist> searchedPlaylists = playlistServ.getPlaylistsByLetters(trimmedSearchTerm);
+	        musicListUtil.setPlaylistMusicList(model, request, searchedPlaylists);
+	    } else {
+	        // If the search bar is empty, display user playlists
+	        musicListUtil.setPlaylistMusicList(model, request, userPlaylists);
+	    }
+
+        model.addAttribute("onePlaylist", playlist);
 	    model.addAttribute("loggedInUser", loggedInUser);
-	    model.addAttribute("allSongs", songServ.getAll());
-	    return "TrackMedia/showOnePlaylist.jsp";
+	    model.addAttribute("allPlaylists", playlistServ.getAll());
+        musicListUtil.setUsersMusicList(model, request, playlistUserId);
+	    return "Playlists/showOnePlaylist.jsp";
 	}
 
-	@GetMapping("/newPlaylist")
-	public String createSong(@ModelAttribute("song") Song song,
+	@GetMapping("/newPlaylist") 
+	public String createPlaylist(@ModelAttribute("playlist") Playlist playlist,
 		Model model, HttpSession session) throws IOException {
 	    Long userId = (Long) session.getAttribute("user_id");
 	    if (userId == null) {
@@ -159,7 +186,7 @@ public class PlaylistController {
 	    User loggedInUser = userServ.getOne(userId);
 		users.add(loggedInUser);
 	    model.addAttribute("loggedInUser", loggedInUser);
-	    return "TrackMedia/addNewPlaylist.jsp";
+	    return "Playlists/addNewPlaylist.jsp";
 	}
 
 	@PostMapping("/process/createNewPlaylist/{songId}")
@@ -173,12 +200,12 @@ public class PlaylistController {
 	    Long userId = (Long) session.getAttribute("user_id");
 
 	    // Validate user session and get user ID
-	    if (userId == null) {
+	    if (userId == null || songId == null) {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\": \"User not logged in\"}");
 	    }
 
 	    User loggedUser = userServ.getOne(userId);
-	    Song songToAdd = songServ.getOne(songId);
+	    Song songToAddToPlaylist = songServ.getOne(songId);
 
 	    // Handle validation errors
 	    if (result.hasErrors()) {
@@ -186,16 +213,17 @@ public class PlaylistController {
 	    }
 	    
 	    try {
-	        // Save the playlist and the song
+	        // Save the playlist and the playlist// Playlist playlistToAdd = new Playlist();
 	        Playlist newPlaylist = new Playlist();
 	        newPlaylist.setUser(loggedUser);
 	        newPlaylist.setTitle(playlist.getTitle());
 	        newPlaylist.setDescription(playlist.getDescription());
-	        playlistServ.create(newPlaylist);
-
+	        newPlaylist = playlistServ.create(newPlaylist);
+		    
 	        PlaylistSongs newPlaylistSong = new PlaylistSongs();
-	        newPlaylistSong.setSong(songToAdd);
+	        newPlaylistSong.setPlaylist(newPlaylist);
 	        newPlaylistSong.setUser(loggedUser);
+	        newPlaylistSong.setSong(songToAddToPlaylist);
 	        newPlaylistSong.setPlaylist(newPlaylist);
 	        playlistSongServ.create(newPlaylistSong);
 
@@ -221,7 +249,7 @@ public class PlaylistController {
 	    }
 
 	    User loggedUser = userServ.getOne(userId);
-	    Song songToAdd = songServ.getOne(songId);
+	    Song playlistSongToAdd = songServ.getOne(songId);
 
 	    // Handle validation errors
 	    if (result.hasErrors()) {
@@ -229,16 +257,16 @@ public class PlaylistController {
 	    }
 	    
 	    try {
-	        // Save the playlist and the song
+	        // Save the playlist and the playlist
 	        Playlist newPlaylist = playlistSong.getPlaylist();
 
 	        PlaylistSongs newPlaylistSong = new PlaylistSongs();
-	        newPlaylistSong.setSong(songToAdd);
 	        newPlaylistSong.setUser(loggedUser);
 	        newPlaylistSong.setPlaylist(newPlaylist);
+	        newPlaylistSong.setSong(playlistSongToAdd);
 	        playlistSongServ.create(newPlaylistSong);
 
-	        return ResponseEntity.ok("{\"message\": \"Song Added To Playlist Successfully\"}");
+	        return ResponseEntity.ok("{\"message\": \"Playlist Added To Playlist Successfully\"}");
 	    } catch (Exception e) {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"An error occurred\"}");
 	    }
@@ -246,70 +274,119 @@ public class PlaylistController {
 
 	// Method to display the edit form
     @GetMapping("/editPlaylist/{id}")
-    public String displayEditForm(@PathVariable("id") Long id,
-    	Model model, HttpSession session, HttpServletRequest request) {
+    public String displayEditForm(@RequestParam(value = "searchedPlaylist", required = false) String searchedPlaylist, 
+    	@PathVariable("playlistId") Long playlistId, Model model, HttpSession session, HttpServletRequest request) {
         Long userId = (Long) session.getAttribute("user_id");
+
         if (userId == null) {
             return "redirect:/melodydreams/login";
         }
 
         fileUtil.setUserAttributes(model, userId);
-        Song song = songServ.getOne(id);
-        if (song == null || !song.getUser().getId().equals(userId)) {
+        Playlist playlist = playlistServ.getOne(playlistId);
+        Long playlistUserId = playlist.getUser().getId();
+        List<Playlist> userPlaylists = playlist.getUser().getPlaylists();
+
+        if (playlist == null || !playlist.getUser().getId().equals(userId)) {
             return "redirect:/melodydreams/playlists"; // or some error handling mechanism
         }
+        // Handle search and display
+	    String trimmedSearchTerm = searchedPlaylist != null ? searchedPlaylist.trim() : null;
+	    if (trimmedSearchTerm != null && !trimmedSearchTerm.isEmpty()) {
+	        // If a non-empty search value is provided
+	        List<Playlist> searchedPlaylists = playlistServ.getPlaylistsByLetters(trimmedSearchTerm);
+	        musicListUtil.setPlaylistMusicList(model, request, searchedPlaylists);
+	    } else {
+	        // If the search bar is empty, display user playlists
+	        musicListUtil.setPlaylistMusicList(model, request, userPlaylists);
+	    }
 
-        model.addAttribute("song", song);
-	    musicListUtil.setMusicList(model, request);
-        musicListUtil.setSingleMusicList(model, request, id);
-        musicListUtil.setUsersMusicList(model, request, userId);
-        return "TrackMedia/editOneTrack.jsp"; // Adjust the path to your JSP file
+	    model.addAttribute("playlist", playlist);
+        musicListUtil.setUsersMusicList(model, request, playlistUserId);
+        return "Playlists/editOnePlaylist.jsp"; // Adjust the path to your JSP file
     }
 
     @PatchMapping("/process/editPlaylist/{id}")
     public String updateTrack(@PathVariable("id") Long id,
         @RequestParam(value = "imageData", required = false) MultipartFile newImageData,
         @RequestParam(value = "audioData", required = false) MultipartFile newAudioData,
-        @ModelAttribute("song") Song songToEdit, BindingResult result, 
+        @ModelAttribute("playlist") Playlist playlistToEdit, BindingResult result, 
         Model model, HttpSession session, HttpServletRequest request) throws IOException {
     	Long userId = (Long) session.getAttribute("user_id");
-        if (userId == null) {
+
+    	if (userId == null) {
             return "redirect:/melodydreams/login";
         }
 
-        Song existingSong = songServ.getOne(id);
-        if (existingSong == null || !existingSong.getUser().getId().equals(userId)) {
+        Playlist existingPlaylist = playlistServ.getOne(id);
+        if (existingPlaylist == null || !existingPlaylist.getUser().getId().equals(userId)) {
             return "redirect:/melodydreams/playlists"; // or some error handling mechanism
         }
 
-        try {
-            if (!newImageData.isEmpty() || !newAudioData.isEmpty()) {
-                // Update and set song data
-                fileUtil.updateSongDataAndSetAttributes(songToEdit, newImageData, newAudioData, userId);
-            }
-
-            // Call the update method in the service
-            songServ.update(songToEdit);
-
-            // Redirect to the track details page after successful update
-            return "redirect:/melodydreams/playlists/" + existingSong.getId();
-        } catch (IOException e) {
-            // Handle file save error
-            fileUtil.handleFileSaveError(e, result, model);
+        if (!result.hasErrors()) {
+            // Update and set playlist data
             musicListUtil.setMusicList(model, request);
             musicListUtil.setSingleMusicList(model, request, id);
             musicListUtil.setUsersMusicList(model, request, userId);
-            model.addAttribute("song", existingSong);
+            model.addAttribute("playlist", existingPlaylist);
             model.addAttribute("loggedInUser", userServ.getOne(userId));
             model.addAttribute("timeFormat", fileUtil.generateTimeFormat());
-            model.addAttribute("trackImageDataError", "Track Image File Is Empty!");
-            model.addAttribute("audioDataError", "Audio File Is Empty!");
-            return "TrackMedia/editOneTrack.jsp";
+            return "Playlists/editOnePlaylist.jsp"; 
         }
+
+
+        // Call the update method in the service
+		playlistServ.update(playlistToEdit);
+
+		// Redirect to the track details page after successful update
+		return "redirect:/melodydreams/playlists/" + existingPlaylist.getId();
     }
 
+    // Confirm Playlist Delete
+	@GetMapping("/confirmDeletePlaylist/{id}")
+	public String confirmDeletePlaylist(@RequestParam(value = "searchedPlaylist", required = false) String searchedPlaylist, 
+		@PathVariable("id") Long playlistId, Model model, HttpSession session, HttpServletRequest request) throws IOException {
+	    Long userId = (Long) session.getAttribute("user_id");
+
+	    if (userId == null) {
+	        return "redirect:/melodydreams/login";
+	    }
+
+	    User loggedInUser = userServ.getOne(userId);
+	    if (loggedInUser == null) {
+	        return "redirect:/melodydreams/login";
+	    }
+	    
+        // Prepare the music list JSON string using PlaylistUtils
+	    Long onePlaylistId = playlistId;
+	    Playlist onePlaylist = playlistServ.getOne(onePlaylistId);
+
+	    if (onePlaylist == null) {
+	        // Handle the case where the playlist with the given id is not found
+	        return "redirect:/melodydreams/tracks";
+	    }
+
+	    List<Playlist> allPlaylists = playlistServ.getAll();
+
+	    // Handle search and display
+	    String trimmedSearchTerm = searchedPlaylist != null ? searchedPlaylist.trim() : null;
+	    if (trimmedSearchTerm != null && !trimmedSearchTerm.isEmpty()) {
+	        // If a non-empty search value is provided
+	        List<Playlist> searchedPlaylists = playlistServ.getPlaylistsByLetters(trimmedSearchTerm);
+	        musicListUtil.setPlaylistMusicList(model, request, searchedPlaylists);
+	    } else {
+	        // If the search bar is empty, display user playlists
+	        musicListUtil.setPlaylistMusicList(model, request, allPlaylists);
+	    }
+
+	    dateUtil.addCurrentDateAttributes(model);
+        model.addAttribute("onePlaylist", onePlaylist);
+	    model.addAttribute("loggedInUser", loggedInUser);
+	    return "Playlists/deleteOnePlaylist.jsp";
+	}
+
 	@DeleteMapping("/deletePlaylist/{id}")
-	public String deleteSong(@PathVariable("id") Long id, HttpSession session) {
+	public String deletePlaylist(@PathVariable("id") Long id, HttpSession session) throws IOException {
 	    Long userId = (Long) session.getAttribute("user_id");
 
 	    // Redirect to login if userId is null
@@ -317,26 +394,13 @@ public class PlaylistController {
 	        return "redirect:/melodydreams/login";
 	    }
 
-	    Song songToDelete = songServ.getOne(id);
+	    Playlist playlistToDelete = playlistServ.getOne(id);
 
-	    // Check if the logged-in user is the owner of the song
-	    if (songToDelete != null && songToDelete.getUser().getId().equals(userId)) {
+	    // Check if the logged-in user is the owner of the playlist
+	    if (playlistToDelete != null && playlistToDelete.getUser().getId().equals(userId)) {
 	        try {
-	            // Delete the corresponding files from the file system
-	            String trackCoverImageUrl = songToDelete.getTrackImageDataUrl() + "/" + songToDelete.getTrackImageFileName();
-	            String audioFileUrl = songToDelete.getAudioDataUrl() + "/" + songToDelete.getAudioFileName();
-	            String trackCoverImagePath = uploadDir + "/" + trackCoverImageUrl;
-	            String audioFilePath = uploadDir + "/" + audioFileUrl;
-
-	            Files.deleteIfExists(Paths.get(trackCoverImagePath));
-	            Files.deleteIfExists(Paths.get(audioFilePath));
-
-	            // Delete the song from the database
-	            songServ.delete(id);
-	        } catch (IOException e) {
-	            // Handle exception if file deletion fails
-	            e.printStackTrace();
-	            // You may want to add a message indicating that file deletion failed
+	            // Delete the playlist from the database
+	            playlistServ.delete(id);
 	        } catch (Exception ex) {
 	            // Handle other exceptions that may occur during deletion
 	            ex.printStackTrace();

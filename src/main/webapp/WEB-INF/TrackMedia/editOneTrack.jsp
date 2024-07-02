@@ -32,7 +32,7 @@
 <meta charset="ISO-8859-1">
 <title>Melody Dreams!</title>
 </head>
-<body class="container-fluid p-8" style="background:rgba(110.2, 100.4, 336.6, 0.9);font-family:cursive;">
+<body class="panel-card" style="background:rgba(110.2, 100.4, 336.6, 0.9);font-family:cursive;">
    	<nav id="navbar" class="playerCover imageCover navbar" 
 	onmouseover="this.style.backgroundImage='url(${pageContext.request.contextPath}/img/purplecrowd-unsplash.jpg)'"
    	style="background-repeat: no-repeat;background-position: center;background-size: cover;position:fixe;"
@@ -235,7 +235,7 @@
 					    onmouseover="this.style.backgroundImage='url(${pageContext.request.contextPath}/img/purplecrowd-unsplash.jpg)'"
 					 	onmouseout="changePlayerCover(this)" 
 					   	style=";background-repeat: no-repeat;background-position: center;background-size: cover;">
-					   	<a class="bluebtn mid-fonts word-slicer" href="/melodydreams/artist/${loggedInUser.id}" style="background:rgba(0.1, 0.2, 0.9, 0.7);">
+					   	<a class="bluebtn mid-fonts word-slicer" href="/melodydreams/artists/${loggedInUser.id}" style="background:rgba(0.1, 0.2, 0.9, 0.7);">
 			                <c:out value="${loggedInUser.firstName} Profile Access"/>
 			            </a>
 			        </li>
@@ -260,16 +260,16 @@
 	    </ul>
 	</nav>
 	
-	<!--Main Title Display -->
-	<div  class="main-greeting-panel imageCover playerCover word-slicer type-writer point-border-radius" style="">
-		<a class="main-greeting leadShowcase" href="/melodydreams/login" style="">
-			<c:out value="Make Changes On Previously Uploaded Tracks!"/>
+	<!--Main Title Displaypanel-card -->
+	<div  class="container-fluid p-8 main-greeting-panel imageCover playerCover word-slicer type-writer point-border-radius" style="">
+		<a class="main-greeting leadShowcase imageCover" href="/melodydreams/login" style="">
+			<c:out value="Make Changes On Your ${song.trackTitle} Track Today, ${currentDateTime} ${loggedInUser.firstName}!"/>
 		</a>
 	</div>	
 
-	<div class="profileShowcase imageCover mid-vert-margin bright-cover">						      	
+	<div class="profileShowcase imageCover mid-vert-margin">						      	
 
-				<form:form class="profileShowcase imageCover full-width lrg-hor-margin" method="patch" action="/melodydreams/process/editTrack/${song.id}" enctype="multipart/form-data" modelAttribute="song">
+				<form:form class="profileShowcase  full-width" method="patch" action="/melodydreams/process/editTrack/${song.id}" enctype="multipart/form-data" modelAttribute="song">
 					<input type="hidden" name="user.id" value="${loggedInUser.id}"/>
 					<div class="form-group">
 			            <form:errors path="*" cssClass="error" element="div"/>
@@ -549,8 +549,10 @@
 <script src="<c:url value='/scripts/player.js'/>"></script>
 <script src="<c:url value='/scripts/randomBackgrounds.js'/>"></script>
 <script src="<c:url value='/scripts/dynamicWidgets.js'/>"></script>
+<script src="<c:url value='/scripts/dynamicPlaylistWidgets.js'/>"></script>
 <script src="<c:url value='/scripts/loadedPanelEvents.js'/>"></script>
 <script src="<c:url value='/scripts/socials.js'/>"></script>
 <script src="<c:url value='/scripts/uploads.js'/>"></script>
+
 </body>
 </html>

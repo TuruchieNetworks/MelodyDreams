@@ -21,13 +21,13 @@ public class FavoritePlaylist {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private Long favoritedPlaylistId;
+    private Long favoritedPlaylistUserId;
 
     @NotBlank(message = "Title cannot be blank!")
     @Size(min = 2, max = 150, message = "Title must be between 2 and 150 characters!")
     private String title;
 
-    @NotBlank(message = "Description must be between 3 and 500 characters!")
-    @Size(min = 3, max = 500, message = "Please Describe Your Playlist!")
     private String description;
 
     @Column(updatable = false)
@@ -40,12 +40,8 @@ public class FavoritePlaylist {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "song_id")
-    private Song song;
-
-    @ManyToOne
-    @JoinColumn(name = "userPlaylist_id")
-    private UserPlaylist userPlaylist;
+    @JoinColumn(name = "playlist_id")
+    private Playlist playlist;
 
     public Long getId() {
 		return id;
@@ -79,20 +75,28 @@ public class FavoritePlaylist {
 		this.user = user;
 	}
 
-	public Song getSong() {
-		return song;
+	public Playlist getPlaylist() {
+		return playlist;
 	}
 
-	public void setSong(Song song) {
-		this.song = song;
+	public void setPlaylist(Playlist playlist) {
+		this.playlist = playlist;
 	}
 
-	public UserPlaylist getUserPlaylist() {
-		return userPlaylist;
+	public Long getFavoritedPlaylistId() {
+		return favoritedPlaylistId;
 	}
 
-	public void setUserPlaylist(UserPlaylist userPlaylist) {
-		this.userPlaylist = userPlaylist;
+	public void setFavoritedPlaylistId(Long favoritedPlaylistId) {
+		this.favoritedPlaylistId = favoritedPlaylistId;
+	}
+
+	public Long getFavoritedPlaylistUserId() {
+		return favoritedPlaylistUserId;
+	}
+
+	public void setFavoritedPlaylistUserId(Long favoritedPlaylistUserId) {
+		this.favoritedPlaylistUserId = favoritedPlaylistUserId;
 	}
 
 	public LocalDateTime getCreatedAt() {

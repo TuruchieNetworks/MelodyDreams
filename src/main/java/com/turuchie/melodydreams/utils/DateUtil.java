@@ -2,7 +2,6 @@ package com.turuchie.melodydreams.utils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.Period;
 import java.time.Year;
 import java.time.format.DateTimeFormatter;
@@ -32,13 +31,23 @@ public class DateUtil {
 
     // All Current Date Attributes
     public void addCurrentDateAttributes(Model model) {
-	    model.addAttribute("currentDateTime", LocalDate.now().format(DateTimeFormatter.ofPattern("EEE, yyyy")));
-	    model.addAttribute("dayCurrentDateTime", LocalDate.now().format(DateTimeFormatter.ofPattern("EEE, MMM dd, yyyy")));
+
+        LocalDateTime currentDateTime = LocalDateTime.now();
+
+        DateTimeFormatter dayformatter = DateTimeFormatter.ofPattern("EEE, yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, MMM dd, yyyy");
+
+        String currentDateTimeFormatted = currentDateTime.format(formatter);
+        String dayCurrentDateTimeFormatted = currentDateTime.format(dayformatter);
+
+        // Set formatted date attributes in the model
+        model.addAttribute("currentDateTime", currentDateTimeFormatted);
+        model.addAttribute("dayCurrentDateTime", dayCurrentDateTimeFormatted);
 
 	    // Additional attributes for seconds, minutes, hours, and days
-		model.addAttribute("currentSecond", LocalTime.now().getSecond());
-		model.addAttribute("currentMinute", LocalTime.now().getMinute());
-		model.addAttribute("currentHour", LocalTime.now().getHour());
+		model.addAttribute("currentSecond", currentDateTime.getSecond());
+		model.addAttribute("currentMinute", currentDateTime.getMinute());
+		model.addAttribute("currentHour", currentDateTime.getHour());
 		model.addAttribute("currentDayOfYear", LocalDate.now().getDayOfYear());
     }
  
@@ -112,6 +121,12 @@ public class DateUtil {
 
         // Check if the birth date's month is after the current month
         if (birthDate.getMonthValue() > currentDate.getMonthValue()) {
+            return false;
+        }
+
+        // Check if the user is at least 21 years old
+        LocalDate minAllowedBirthDate = currentDate.minusYears(21);
+        if (birthDate.isAfter(minAllowedBirthDate)) {
             return false;
         }
 

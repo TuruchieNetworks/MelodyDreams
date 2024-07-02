@@ -31,7 +31,7 @@ const random_bg_color = () => {
     var angle = 'to right';
 
     let gradient = `linear-gradient(${angle}, ${Color1}, ${Color2})`;
-    document.body.style.background = gradient;
+     // document.body.style.background = gradient;
     return gradient;
 }
 
@@ -52,7 +52,7 @@ const random_hex_color = () => {
     //let Color2 = populate('#');
     
     let randomHexColor = randomHexValue;
-    return randomRgb;
+    return randomHexColor;
 }
 
 const random_rgb_color = () => {

@@ -225,8 +225,12 @@ const startBackgroundEvents = () => {
 		
  	
 		playpause_btn.forEach((element, i) => {
-		   //upper_panel_play_btn[i].innerHTML = '<i class="upper-track-art-widget playerCover fa fa-play-circle fa-5x"></i>';
-	       element.innerHTML = '<i class="fa fa-pause-circle fa-5x"></i>';
+			if (element.id === `upper-panel-play-pause-icon-${music_list[current_song_index].trackId}`) {
+				element.innerHTML = '<i class="fa fa-pause-circle fa-5x"></i>';
+			} else {
+			   //upper_panel_play_btn[i].innerHTML = '<i class="upper-track-art-widget playerCover fa fa-play-circle fa-5x"></i>';
+		       element.innerHTML = '<i class="fa fa-pause-circle fa-5x"></i>';
+	       }
 	    });
 	});
 };

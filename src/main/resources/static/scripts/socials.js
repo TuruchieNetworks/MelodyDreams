@@ -46,7 +46,7 @@ const submitForm = (formId, successMessage, reloadPage = false) => {
     });
 };
 
-// Add event listeners for form submissions
+// Add event listeners for tracking playlist form submissions
 document.querySelectorAll('.playlist-form').forEach(form => {
     form.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -54,6 +54,39 @@ document.querySelectorAll('.playlist-form').forEach(form => {
     });
 });
 
+// Add event listeners for tracking playlist form submissions
+document.querySelectorAll('.new-playlist-form').forEach(form => {
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        submitForm(form.id, 'Song added to playlist successfully');
+    });
+});
+
+// Add event listeners for tracking playlist form submissions
+document.querySelectorAll('.new-section-playlist-form').forEach(form => {
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        submitForm(form.id, 'Song added to playlist successfully');
+    });
+});
+
+// Add event listeners for tracking playlist form submissions
+document.querySelectorAll('.new-footer-playlist-form').forEach(form => {
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        submitForm(form.id, 'Song added to playlist successfully');
+    });
+});
+
+// Add event listeners for tracking playlist form submissions
+document.querySelectorAll('.section-playlist-form').forEach(form => {
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        submitForm(form.id, 'Song added to playlist successfully');
+    });
+});
+
+// Event listener for tracking playlist forms
 document.querySelectorAll('.footer-playlist-form ').forEach(form => {
     form.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -61,6 +94,7 @@ document.querySelectorAll('.footer-playlist-form ').forEach(form => {
     });
 });
 
+// Event listener for tracking downloads
 document.querySelectorAll('.metricsForm-download').forEach(form => {
     form.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -68,6 +102,7 @@ document.querySelectorAll('.metricsForm-download').forEach(form => {
     });
 });
 
+// Event listener for documenting track position
 document.querySelectorAll('.metricsForm-seekSlider').forEach(form => {
     form.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -75,6 +110,7 @@ document.querySelectorAll('.metricsForm-seekSlider').forEach(form => {
     });
 });
 
+// Event listener for liking songs
 document.querySelectorAll('.like-song-form').forEach(form => {
     form.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -82,6 +118,7 @@ document.querySelectorAll('.like-song-form').forEach(form => {
     });
 });
 
+// Event listener for liking users
 document.querySelectorAll('.like-user-form').forEach(form => {
     form.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -89,6 +126,7 @@ document.querySelectorAll('.like-user-form').forEach(form => {
     });
 });
 
+// Event listener for  following users
 document.querySelectorAll('.follow-user-form').forEach(form => {
     form.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -96,8 +134,23 @@ document.querySelectorAll('.follow-user-form').forEach(form => {
     });
 });
 
+// Event listener for unliking songs
+document.querySelectorAll('.unlike-song-form').forEach(form => {
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        submitForm(form.id, 'Song unliked successfully');
+    });
+});
 
-// Event listener for unfollow user forms
+// Event listener for unliking users
+document.querySelectorAll('.unlike-user-form').forEach(form => {
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        submitForm(form.id, 'User unliked successfully');
+    });
+});
+
+// Event listener for unfollowing users
 document.querySelectorAll('.unfollow-user-form').forEach(form => {
     form.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -113,42 +166,59 @@ document.querySelectorAll('.deleteForm').forEach(form => {
     });
 });
 
- // Event listener for like song forms
-document.querySelectorAll('.like-song-form').forEach(form => {
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
-        submitForm(form.id, 'Song liked successfully');
+// Event listeners For Favorite Actions
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.favorite-song-form').forEach(form => {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            submitForm(form.id, 'Favorite song added successfully!');
+        });
     });
-});
 
-// Event listener for unlike song forms
-document.querySelectorAll('.unlike-song-form').forEach(form => {
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
-        submitForm(form.id, 'Song unliked successfully');
+    document.querySelectorAll('.delete-favorite-song-form').forEach(form => {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            submitForm(form.id, 'Favorite song removed successfully!');
+        });
     });
-});
 
-// Event listener for like user forms
-document.querySelectorAll('.like-user-form').forEach(form => {
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
-        submitForm(form.id, 'User liked successfully');
+    document.querySelectorAll('.favorite-playlist-form').forEach(form => {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            submitForm(form.id, 'Favorite playlist added successfully!');
+        });
     });
-});
 
-// Event listener for unlike user forms
-document.querySelectorAll('.unlike-user-form').forEach(form => {
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
-        submitForm(form.id, 'User unliked successfully');
+    document.querySelectorAll('.delete-favorite-playlist-form').forEach(form => {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            submitForm(form.id, 'Favorite playlist removed successfully!', true);
+        });
+    });
+
+    document.querySelectorAll('.favorite-album-form').forEach(form => {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            submitForm(form.id, 'Favorite album added successfully!');
+        });
+    });
+
+    document.querySelectorAll('.delete-favorite-album-form').forEach(form => {
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            submitForm(form.id, 'Favorite album removed successfully!', true);
+        });
     });
 });
 
 //Track Metrics
-
 const handleSeekSliderFormSubmit = (matrixSongIdx) => {
    submitMetrics(`metricsForm-seek-slider-${matrixSongIdx}`, 'Track Position Has Been Successfully updated');
+}
+
+// Event listener for download button
+const handleDownload = (songId) => {
+    submitMetrics(`metricsForm-download-${songId}`, `Your Download Has Started For Song Id: ${songId}`);
 }
 // Function to submit the metrics form// Function to submit the metrics form
 const submitMetrics = (formId, successMessage) => {
@@ -235,34 +305,18 @@ const showCustomNotification = (message, type = 'success') => {
     }, 3000);
 }
 
-// Event listener for download button
-const handleDownload = (songId) => {
-    submitMetrics(`metricsForm-download-${songId}`, `Your Download Has Started For Song Id: ${songId}`);
-}
-/*
-const handleDownload = (e) => {
-	const downloadMetrics = document.querySelectorAll('.metricsForm-download');
-	downloadMetrics.forEach((metric, i) => {
-		
-    	submitMetrics(metric.id,`Download count updated for Track ${i}`);
-    });
-}*/
+///Favorite song Form
+function updateFavoriteForm(songId, userId, action, favoriteSongId) {
+        const favoriteForm = document.querySelector(`#favoriteSongForm-${songId}`);
+        const unfavoriteForm = document.querySelector(`#unfavoriteSongForm-${songId}`);
 
-// Attach the functions to the global scope if needed 
-/*/
-}const handleDownload = (songId) => {
-    submitMetrics(`metricsForm-download${songId}`, 'Download count updated');
-};; Delete Track form submission
-window.panelPlaypauseTrack = panelPlaypauseTrack;
-window.handleDownload = handleDownload;
-document.querySelectorAll('.deleteForm').forEach(form => {
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
-        // Stop the music (Assuming there's a function or a player to stop)
-        if (typeof stopMusic === 'function') {
-            stopMusic();
+        if (action === 'create') {
+            favoriteForm.style.display = 'none';
+            unfavoriteForm.style.display = 'block';
+            unfavoriteForm.action = `/melodydreams/deleteFavoriteSong/${favoriteSongId}`;
+        } else if (action === 'delete') {
+            unfavoriteForm.style.display = 'none';
+            favoriteForm.style.display = 'block';
+            favoriteForm.action = `/melodydreams/process/createNewFavoriteSong/${songId}`;
         }
-        submitForm(form.id, 'Track deleted successfully', true);
-    });
-});
-*/
+    }

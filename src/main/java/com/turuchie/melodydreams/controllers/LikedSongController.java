@@ -23,7 +23,7 @@ import com.turuchie.melodydreams.models.User;
 import com.turuchie.melodydreams.services.LikedSongService;
 import com.turuchie.melodydreams.services.SongService;
 import com.turuchie.melodydreams.services.UserService;
-import com.turuchie.melodydreams.utils.ArtistsUtils;
+import com.turuchie.melodydreams.utils.TrackMediaUtils;
 import com.turuchie.melodydreams.utils.FileUtils;
 import com.turuchie.melodydreams.utils.MetricsUtil;
 
@@ -46,21 +46,16 @@ public class LikedSongController {
 	@Autowired
 	private FileUtils fileUtil;
 
-	@SuppressWarnings("unused")
+
 	@Autowired
-	private MetricsUtil metricUtil;
- 
-	@SuppressWarnings("unused")
-	@Autowired
-	private ArtistsUtils artistsUtil;
+	private TrackMediaUtils trackMediaUtil;
 
 	@Autowired
 	public LikedSongController(UserService userServ, LikedSongService likedSongServ,
-		MetricsUtil metricUtil, SongService songServ, FileUtils fileUtil, ArtistsUtils artistsUtil) {
+		MetricsUtil metricUtil, SongService songServ, FileUtils fileUtil, TrackMediaUtils trackMediaUtil) {
         this.fileUtil = fileUtil;
         this.userServ = userServ;
-        this.artistsUtil = artistsUtil;
-        this.metricUtil = metricUtil;
+        this.trackMediaUtil = trackMediaUtil;
         this.likedSongServ = likedSongServ;
     }
 
@@ -122,15 +117,15 @@ public class LikedSongController {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
 	    }
 
-	    User userLiking = artistsUtil.getUser(userId);
-	    Long userLikingId = artistsUtil.getUserId(userLiking);
+	    User userLiking = trackMediaUtil.getUser(userId);
+	    Long userLikingId = userId;
 
 	    if (result.hasErrors()) {
 	        return ResponseEntity.badRequest().body("Validation error");
 	    }
 
-	    Song songToLike = artistsUtil.getSong(songId);
-	    Long songToLikeId = artistsUtil.getSongId(songToLike);
+	    Song songToLike = trackMediaUtil.getSong(songId);
+	    Long songToLikeId = songToLike.getId();
 	    String successNotification = songToLike.getTrackTitle() + " " + "Liked Successfully!";
 	    String failureNotification = songToLike.getTrackTitle() + " " + "Already Liked!";
 

@@ -160,12 +160,13 @@ audioSrc.forEach(e => {
 */
 console.log(loggedId)
 console.log(now_playing)
-//console.log(musicListData);
+console.log(musicListData);
 //console.log(musicListData.length);
 // Function to process the musicList And Attempt to parse the JSON data
 const parseMusicList = () => {
 	try {
 	    music_list = JSON.parse(musicListData);
+	    musicListData.classList.add('hidePanel')
 	    //console.log('Music list parsed successfully: dataLength', music_list.length);
 	} catch (error) {
 	    console.error('Error parsing music list JSON:', error);
@@ -739,7 +740,7 @@ const setAllUpdate = () => {
 	        // Update seek slider value
 	        //sseek_slider[i].value = seekPoint;
 	
-			//stylePanelCards();
+			stylePanelCards();
 	        // Update current time and total duration in the UI
 	        curr_time.forEach((e) => {
 	            e.textContent = formattedDurationDetails.trackCurrentMinutes + ':' + formattedDurationDetails.trackCurrentSeconds;
@@ -749,14 +750,14 @@ const setAllUpdate = () => {
 	        let total_durations = document.querySelectorAll('.total-durations');
 
 	        //if (music_list[i].trackId === total_durations[i].id){
-	        total_durations[i].textContent = "Total Duration: " + formattedDurationDetails.trackTotalDurationMinutes + ':' + formattedDurationDetails.trackTotalDurationSeconds;
-	        total_durations[i].textContent = "Total Duration: " + formattedDurationDetails.trackTotalDurationMinutes + ':' + formattedDurationDetails.trackTotalDurationSeconds;
-	        panel_total_durations[i].textContent = "Total Duration: " + formattedDurationDetails.trackTotalDurationMinutes + ':' + formattedDurationDetails.trackTotalDurationSeconds;
+	        total_durations[i].textContent = `Total Duration: ${formattedDurationDetails.trackTotalDurationMinutes}:${formattedDurationDetails.trackTotalDurationSeconds}`;
+	        total_durations[i].textContent = `Total Duration: ${formattedDurationDetails.trackTotalDurationMinutes}:${formattedDurationDetails.trackTotalDurationSeconds}`;
+	        panel_total_durations[i].textContent = `Total Duration: ${formattedDurationDetails.trackTotalDurationMinutes}:${formattedDurationDetails.trackTotalDurationSeconds}`;
 
 	        // Update remaining duration in the UIfooter_remaining_durations
-	        remaining_durations[i].textContent = formattedDurationDetails.trackRemainingMinutes + ':' + formattedDurationDetails.trackRemainingSeconds;
-	        panel_remaining_durations[i].textContent = formattedDurationDetails.trackRemainingMinutes + ':' + formattedDurationDetails.trackRemainingSeconds;
-	        //footer_remaining_durations[i].textContent = formattedDurationDetails.trackRemainingMinutes + ':' + formattedDurationDetails.trackRemainingSeconds;
+	        remaining_durations[i].textContent = `${formattedDurationDetails.trackRemainingMinutes}:${formattedDurationDetails.trackRemainingSeconds}`;
+	        panel_remaining_durations[i].textContent = `${formattedDurationDetails.trackRemainingMinutes}:${formattedDurationDetails.trackRemainingSeconds}`;
+	        //footer_remaining_durations[i].textContent = `${formattedDurationDetails.trackRemainingMinutes}:${formattedDurationDetails.trackRemainingSeconds}`;
         }
     }
 }
@@ -785,17 +786,18 @@ const setUpdate = () => {
         // Update current time and total duration in the UI
         curr_time.forEach((e) => {
             if (e.id === music_list[current_song_index].trackId || e.id === 'allCurrentTime') {
-                e.textContent = formattedDurationDetails.trackCurrentMinutes + ':' + formattedDurationDetails.trackCurrentSeconds;
+                e.textContent = `${formattedDurationDetails.trackCurrentMinutes}:${formattedDurationDetails.trackCurrentSeconds}`;
             } else {
                 e.textContent = '00:00';
             }
         });           
+
         if (isPlaying) {
 			stylePanelCards();
-        }          
-        else {
+        } else {
 			removeStylePanelCards();
         }
+ 
         // Update total duration in the UI
 		updateDurationUIDetails(formattedDurationDetails);
 	}

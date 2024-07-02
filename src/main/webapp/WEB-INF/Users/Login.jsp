@@ -77,23 +77,23 @@
 	<!--Main Title Display -->
 	<div  class="main-greeting-panel imageCover playerCover word-slicer type-writer point-border-radius" style="">
 		<a class="main-greeting leadShowcase" href="/melodydreams/login" style="">
-			<c:out value="Welcome To Cloud Melody Dreams!"/>
+			<c:out value="Welcome To Cloud Melody Dreams Today, ${currentDateTime}!"/>
 		</a>
 	</div>	
 
 	<div class="profileShowcase imageCover mid-vert-margin">						      	
-	<div  id="0" class="lead flexCover track-panel id-play-panel panelPlayPauseBtn" style="">
-	    <div id="0" class="flex-panel bright-colors imageCover panel-card full-width" style="">
-	        <div class="flex-panel sm-hor-margin" style="">
-		        <c:out value="Share Your Music With Fans All Over The World!"/>
-		        <span id="id-play-panel-0" class="playpause-icon"></span> <!-- Span to hold the play/pause icon -->
-	        	<span id="" class="upper-panel-play-btn">
-	    			<i id=""  class="track-art-widget fa fa-play-circle fa-5x"></i>
-	    		</span> 						      
-			 </div>
-        </div>
- 	</div>
-			<div class="flexCover imageCover">						      	
+		 <div  id="0" class="lead flexCover track-panel id-play-panel panelPlayPauseBtn" style="">
+		     <div id="0" class="flex-panel bright-flash imageCover panel-card full-width" style="">
+		        <div class="flex-panel sm-hor-margin" style="">
+			        <c:out value="Share Your Music With Fans All Over The World!"/>
+			        <span id="id-play-panel-0" class="playpause-icon"></span> <!-- Span to hold the play/pause icon -->
+		        	<span id="" class="upper-panel-play-btn">
+		    			<i id=""  class="track-art-widget fa fa-play-circle fa-5x"></i>
+		    		</span> 						      
+				 </div>
+	          </div>
+	 	  </div>
+		  <div class="flexCover imageCover">						      	
 				<div  id="0" class="lead flexCover track-panel id-play-panel panelPlayPauseBtn full-width full-height" style="">
 				    <div id="0" class="flex-panel bright-flash imageCover panel-card sm-vert-margin" style="">
 				        <div class="flex-panel sm-hor-margin" style="">
@@ -133,7 +133,7 @@
 
 					<div class="form-group party-lights imageCover mid-vert-margin"style="">
 					  	<div class="form-group  columnCover imageCover mid-padding" style="">
-					    	<input type="submit" value="Login" class="leadShowcase submit-track" id="submitBtn"/>
+					    	<input type="submit" value="Login Today, ${dayCurrentDateTime}" class="leadShowcase submit-track" id="submitBtn"/>
 				 			<a href="/melodydreams/register" class="btn btn-outline-warning leadShowcase back-btn" style="">
 				 				<c:out value="Dont Have An Account?"/>
 				 			</a>
@@ -148,6 +148,7 @@
 <script src="<c:url value='/scripts/player.js'/>"></script>
 <script src="<c:url value='/scripts/randomBackgrounds.js'/>"></script>
 <script src="<c:url value='/scripts/dynamicWidgets.js'/>"></script>
+<script src="<c:url value='/scripts/dynamicPlaylistWidgets.js'/>"></script>
 <script src="<c:url value='/scripts/loadedPanelEvents.js'/>"></script>
 <script src="<c:url value='/scripts/socials.js'/>"></script>
 <script src="<c:url value='/scripts/uploads.js'/>"></script>

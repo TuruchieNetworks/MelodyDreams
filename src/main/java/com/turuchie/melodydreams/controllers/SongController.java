@@ -27,6 +27,8 @@ import com.turuchie.melodydreams.models.User;
 import com.turuchie.melodydreams.services.MetricsService;
 import com.turuchie.melodydreams.services.SongService;
 import com.turuchie.melodydreams.services.UserService;
+import com.turuchie.melodydreams.utils.ArtistsUtils;
+import com.turuchie.melodydreams.utils.DateUtil;
 import com.turuchie.melodydreams.utils.FileUtils;
 import com.turuchie.melodydreams.utils.MetricsUtil;
 import com.turuchie.melodydreams.utils.MusicListUtils;
@@ -48,25 +50,33 @@ public class SongController {
 	private UserService userServ;
 
 	@Autowired
+	private DateUtil dateUtil;
+
+	@Autowired
 	private FileUtils fileUtil;
 	
 	@Autowired
 	private MetricsUtil metricsUtil;
 
 	@Autowired
+	private ArtistsUtils artistUtil;
+
+	@Autowired
 	private MusicListUtils musicListUtil;
 
 	@Autowired
-	public SongController( MetricsService metricsServ, UserService userServ, MetricsUtil metricsUtil, MusicListUtils musicListUtil,
-		SongService songServ, FileUtils fileUtil) {
+	public SongController( MetricsService metricsServ, UserService userServ,
+		MetricsUtil metricsUtil, MusicListUtils musicListUtil, DateUtil dateUtil,
+		SongService songServ, FileUtils fileUtil, ArtistsUtils artistUtil) {
         this.userServ = userServ;
         this.songServ = songServ;
         this.fileUtil = fileUtil;
+        this.artistUtil = artistUtil;
         this.metricsUtil = metricsUtil;
         this.musicListUtil = musicListUtil;
     }
-	public SongController() {}
 
+	public SongController() {}
 
     // Helper method to save file and return its bytes
     @SuppressWarnings("unused")
@@ -77,34 +87,46 @@ public class SongController {
     }
 
 	@GetMapping("/tracks")
-	public String songIndexPage(Model model, HttpSession session, HttpServletRequest request) {
+	public String songIndexPage(@RequestParam(value = "searchedArtist", required = false) String searchedArtist, 
+		Model model, HttpSession session, HttpServletRequest request) {
 		Long userId = (Long) session.getAttribute("user_id");
 	    if (userId == null){
 	    	return "redirect:/melodydreams/login";
 	    }    
 
 	    List<Song> allSongs = songServ.getAll();
+	    // Handle search and display
+	    String trimmedSearchTerm = searchedArtist != null ? searchedArtist.trim() : null;
+	    if (trimmedSearchTerm != null && !trimmedSearchTerm.isEmpty()) {
+	        // If a non-empty search value is provided
+	        List<Song> searchedSongs = songServ.getSongsByLetters(trimmedSearchTerm);
+	        musicListUtil.setSearchedMusicList(model, request, searchedSongs);
+	    } else {
+	        // If the search bar is empty, display user playlists
+            model.addAttribute("searchError", "No users found matching the provided term.");
+            musicListUtil.setMusicList(model, request);
+            artistUtil.setArtistAttributes(model, userId); 
+	    }
+
+	    // Today's date 
+        dateUtil.addCurrentDateAttributes(model);
 
         // Prepare the music list JSON string using SongUtils
-
-        metricsUtil.addMetricsToModel(model);
-        musicListUtil.setMusicList(model, request);
-        musicListUtil.setUsersMusicList(model, request, userId);
 		User loggedInUser = userServ.getOne(userId);
 
 	    if (loggedInUser == null) {
 	        return "redirect:/melodydreams/login";
 	    }
 
+	    model.addAttribute("allSongs", allSongs);
 		model.addAttribute("loggedInUser", loggedInUser);
-		model.addAttribute("allSongs", allSongs);
 		model.addAttribute("allUsers", userServ.findAll());
 		return "TrackMedia/showAllTracks.jsp";
 	}
 
 	@GetMapping("/tracks/{id}")
-	public String showOneSong(@PathVariable("id") Long id, Model model,
-		HttpSession session, HttpServletRequest request) throws IOException {
+	public String showOneSong(@RequestParam(value = "searchedSong", required = false) String searchedSong, 
+		@PathVariable("id") Long id, Model model, HttpSession session, HttpServletRequest request) throws IOException {
 	    Long userId = (Long) session.getAttribute("user_id");
 
 	    if (userId == null) {
@@ -117,22 +139,37 @@ public class SongController {
 	    }
 	    
         // Prepare the music list JSON string using SongUtils
-	    Song song = songServ.getOne(id);
+	    Long oneSongId = id;
+	    Song song = songServ.getOne(oneSongId);
 
 	    if (song == null) {
 	        // Handle the case where the song with the given id is not found
 	        return "redirect:/melodydreams/tracks";
 	    }
 
+	    // Handle search and display
+	    String trimmedSearchTerm = searchedSong != null ? searchedSong.trim() : null;
+	    if (trimmedSearchTerm != null && !trimmedSearchTerm.isEmpty()) {
+	        // If a non-empty search value is provided
+		    List<Song> filteredSongs = new ArrayList<>();
+	        //long searchedId = songServ.getOneTrackTitle(trimmedSearchTerm).getId();
+
+		    filteredSongs = songServ.getSongsByLetters(trimmedSearchTerm);
+	        //musicListUtil.setUsersMusicList(model, request, searchedId);
+	        //musicListUtil.setSingleMusicList(model, request, searchedId);
+	        musicListUtil.setSearchedMusicList(model, request, filteredSongs);
+	    } else {
+	        // If the search bar is empty, display user playlists
+	        musicListUtil.setSingleMusicList(model, request, oneSongId);
+	    }
+
 
         metricsUtil.addMetricsToModel(model);
-	    musicListUtil.setMusicList(model, request);
-        musicListUtil.setSingleMusicList(model, request, id);
-        //musicListUtil.setUsersMusicList(model, request, userId);
+        dateUtil.addCurrentDateAttributes(model);
+        musicListUtil.setUsersMusicList(model, request, userId);
 
         model.addAttribute("oneSong", song);
 	    model.addAttribute("loggedInUser", loggedInUser);
-	    model.addAttribute("allSongs", songServ.getAll());
 	    return "TrackMedia/showOneTrack.jsp";
 	}
 
@@ -154,6 +191,9 @@ public class SongController {
 		List<User> users = new ArrayList<>();
 	    User loggedInUser = userServ.getOne(userId);
 		users.add(loggedInUser);
+
+	    // Today's date 
+        dateUtil.addCurrentDateAttributes(model);
 	    model.addAttribute("loggedInUser", loggedInUser);
 	    return "TrackMedia/addNewTrack.jsp";
 	}
@@ -188,6 +228,9 @@ public class SongController {
 		        result.rejectValue("trackArtist", "error.trackArtist", "Please enter Track Artist!");
 		        result.rejectValue("genre", "error.genre", "Genre cannot be empty!");
 		        result.rejectValue("description", "error.description", "Please describe your track!");
+
+			    // Today's date 
+		        dateUtil.addCurrentDateAttributes(model);
 		        //fileUtil.handleFileValidationErrors(result, model, "Track Image File Is Empty!", "Audio File Is Empty!");        
 		        if (!imageData.isEmpty()) {
 			        //model.addAttribute("trackImageDataError", "Track Image File Is Empty!");
@@ -205,75 +248,14 @@ public class SongController {
 	    try {
 	        // Save the song and redirect to the artist page upon successful submission
 	        Song newSong = songServ.create(song);
-	        long newSongId = newSong.getId();
-	        return "redirect:/melodydreams/tracks/" + newSongId;
+	        long newSongUserId = newSong.getUser().getId();
+	        return "redirect:/melodydreams/artists/" + newSongUserId;
 	    } catch (SomeAppropriateException e) {
 	        // Handle submission error
-	        //result.rejectValue("trackTitle", "error.song", "There was an error submitting the track. Please try again.");
+	        result.rejectValue("trackTitle", "error.song", "There was an error submitting the track. Please try again.");
 		    return "TrackMedia/addNewTrack.jsp";
 	    }
 	}
-
-//	@PostMapping("/process/createNewMetrics")
-//	public String processCreateMetrics(
-//		@Valid @ModelAttribute("Metrics") Metrics Metrics, 
-//        BindingResult result, Model model, HttpSession session) throws IOException {
-//	    Long userId = fileUtil.validateUserAndGetId(session);
-//	    if (userId == null) {
-//	        return null;
-//	    }
-//
-//	    fileUtil.setUserAttributes(model, userId);
-//
-//	    // Save and set Metrics data
-//        Metrics = metricsServ.create(Metrics);
-//        return "redirect:/melodydreams/artists";
-//    } 
-	
-// Method Returnin Json
-//	@PostMapping("/process/createNewMetrics")
-//	public ResponseEntity<?> processCreateMetrics(
-//	    @Valid @ModelAttribute("Metrics") Metrics metrics, 
-//	    BindingResult result, Model model, HttpSession session) throws IOException {
-//	    Long userId = fileUtil.validateUserAndGetId(session);
-//	    if (userId == null) {
-//	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\": \"User not logged in\"}");
-//	    }
-//
-//	    if (result.hasErrors()) {
-//	        return ResponseEntity.badRequest().body("{\"message\": \"Validation error\"}");
-//	    }
-//
-//	    try {
-//	        metricsServ.create(metrics);
-//	        return ResponseEntity.ok("{\"message\": \"Metrics created successfully\"}");
-//	    } catch (Exception e) {
-//	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"An error occurred\"}");
-//	    }
-//	}
-//	@PostMapping("/process/createNewMetrics")
-//	public ResponseEntity<?> processCreateMetrics(
-//	    @Valid @ModelAttribute("Metrics") Metrics metrics, 
-//	    BindingResult result, Model model, HttpSession session,
-//	    @RequestParam("seekSliderValue") Float seekSliderValue) throws IOException {
-//	    
-//	    Long userId = fileUtil.validateUserAndGetId(session);
-//	    if (userId == null) {
-//	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
-//	    }
-//
-//	    if (result.hasErrors()) {
-//	        return ResponseEntity.badRequest().body("Validation error");
-//	    }
-//
-//	    try {
-//	        metrics.setSeekSliderValue(seekSliderValue); // Save the seek slider value
-//	        metricsServ.create(metrics);
-//	        return ResponseEntity.ok("Metrics created successfully");
-//	    } catch (Exception e) {
-//	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred");
-//	    }
-//	}
 
 	// Method to display the edit form
     @GetMapping("/editTrack/{id}")
@@ -326,10 +308,12 @@ public class SongController {
             return "redirect:/melodydreams/tracks/" + existingSong.getId();
         } catch (IOException e) {
             // Handle file save error
+	        dateUtil.addCurrentDateAttributes(model);
             fileUtil.handleFileSaveError(e, result, model);
             musicListUtil.setMusicList(model, request);
             musicListUtil.setSingleMusicList(model, request, id);
             musicListUtil.setUsersMusicList(model, request, userId);
+
             model.addAttribute("song", existingSong);
             model.addAttribute("loggedInUser", userServ.getOne(userId));
             model.addAttribute("timeFormat", fileUtil.generateTimeFormat());
@@ -339,7 +323,58 @@ public class SongController {
         }
     }
 
-	@DeleteMapping("/deleteTrack/{id}")
+    // Confirm Track Delete
+	@GetMapping("/deletetrack/{id}")
+	public String confirmDeleteSong(@RequestParam(value = "searchedSong", required = false) String searchedSong, 
+		@PathVariable("id") Long id, Model model, HttpSession session, HttpServletRequest request) throws IOException {
+	    Long userId = (Long) session.getAttribute("user_id");
+
+	    if (userId == null) {
+	        return "redirect:/melodydreams/login";
+	    }
+
+	    User loggedInUser = userServ.getOne(userId);
+	    if (loggedInUser == null) {
+	        return "redirect:/melodydreams/login";
+	    }
+	    
+        // Prepare the music list JSON string using SongUtils
+	    Long oneSongId = id;
+	    Song song = songServ.getOne(oneSongId);
+
+	    if (song == null) {
+	        // Handle the case where the song with the given id is not found
+	        return "redirect:/melodydreams/tracks";
+	    }
+
+	    // Handle search and display
+	    String trimmedSearchTerm = searchedSong != null ? searchedSong.trim() : null;
+	    if (trimmedSearchTerm != null && !trimmedSearchTerm.isEmpty()) {
+	        // If a non-empty search value is provided
+	        long searchedId = songServ.getOneTrackTitle(trimmedSearchTerm).getId();
+		    List<Song> filteredSongs = new ArrayList<>();
+		    filteredSongs = songServ.getSongsByLetters(trimmedSearchTerm);
+	        musicListUtil.setUsersMusicList(model, request, searchedId);
+	        //musicListUtil.setSingleMusicList(model, request, searchedId);
+	        musicListUtil.setSearchedMusicList(model, request, filteredSongs);
+	    } else {
+	        // If the search bar is empty, display user playlists
+	        musicListUtil.setUsersMusicList(model, request, userId);
+	        musicListUtil.setSingleMusicList(model, request, oneSongId);
+	    }
+
+
+        metricsUtil.addMetricsToModel(model);
+        dateUtil.addCurrentDateAttributes(model);
+        //musicListUtil.setSingleMusicList(model, request, id);
+        //musicListUtil.setUsersMusicList(model, request, userId);
+
+        model.addAttribute("oneSong", song);
+	    model.addAttribute("loggedInUser", loggedInUser);
+	    return "TrackMedia/deleteOneTrack.jsp";
+	}
+
+	@DeleteMapping("/delete/{id}")
 	public String deleteSong(@PathVariable("id") Long id, HttpSession session) {
 	    Long userId = (Long) session.getAttribute("user_id");
 

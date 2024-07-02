@@ -24,7 +24,7 @@ import com.turuchie.melodydreams.services.SongService;
 import com.turuchie.melodydreams.services.UserService;
 import com.turuchie.melodydreams.utils.FileUtils;
 import com.turuchie.melodydreams.utils.MetricsUtil;
-import com.turuchie.melodydreams.utils.ArtistsUtils;
+import com.turuchie.melodydreams.utils.TrackMediaUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -50,15 +50,15 @@ public class FollowedUserController {
 	private MetricsUtil metricUtil;
  
 	@Autowired
-	private ArtistsUtils artistsUtil;
+	private TrackMediaUtils trackMediaUtil;
 
 	@Autowired
 	public FollowedUserController(UserService userServ, FollowedUserService followedUserServ,
-		MetricsUtil metricUtil, SongService songServ, FileUtils fileUtil, ArtistsUtils artistsUtil) {
+		MetricsUtil metricUtil, SongService songServ, FileUtils fileUtil, TrackMediaUtils trackMediaUtil) {
         this.fileUtil = fileUtil;
         this.userServ = userServ;
         this.metricUtil = metricUtil;
-        this.artistsUtil = artistsUtil;
+        this.trackMediaUtil = trackMediaUtil;
         this.followedUserServ = followedUserServ;
     }
 
@@ -119,19 +119,19 @@ public class FollowedUserController {
 	    if (userId == null) {
 	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
 	    }
-	    User userFollowing = artistsUtil.getUser(userId);
-	    Long userFollowingId = artistsUtil.getUserId(userFollowing);
-	    String userFollowingName = artistsUtil.getUserName(userFollowing);
+	    User userFollowing = trackMediaUtil.getUser(userId);
+	    Long userFollowingId = trackMediaUtil.getUserId(userFollowing);
+	    String userFollowingName = trackMediaUtil.getUserName(userFollowing);
 
 	    if (result.hasErrors()) {
 	        return ResponseEntity.badRequest().body("Validation error");
 	    }
 
-	    User userFollowed = artistsUtil.getUser(userToFollowId);
-	    Long userFollowedId = artistsUtil.getUserId(userFollowed);
-	    String userFollowedName = artistsUtil.getUserName(userFollowed);
-	    String successNotification =  artistsUtil.generateSuccessNotification(userFollowed);
-	    String failureNotification = artistsUtil.generateFailureNotification(userFollowed);
+	    User userFollowed = trackMediaUtil.getUser(userToFollowId);
+	    Long userFollowedId = trackMediaUtil.getUserId(userFollowed);
+	    String userFollowedName = trackMediaUtil.getUserName(userFollowed);
+	    String successNotification =  trackMediaUtil.generateSuccessNotification(userFollowed);
+	    String failureNotification = trackMediaUtil.generateFailureNotification(userFollowed);
 
 	    // Check if the relationship already exists
 	    if (followedUserServ.isRelationshipExists(userFollowedId, userFollowingId)) {
@@ -139,7 +139,7 @@ public class FollowedUserController {
 	    }
 
 	    try {	    
-	    	artistsUtil.setNewFollowedUserAttributes(userFollowedId, userFollowingId, userFollowedName, userFollowingName, newFollowedUser, userFollowed);
+	    	trackMediaUtil.setNewFollowedUserAttributes(userFollowedId, userFollowingId, userFollowedName, userFollowingName, newFollowedUser, userFollowed);
 	        followedUserServ.create(newFollowedUser);
 	        return ResponseEntity.ok(successNotification);
 	    } catch (Exception e) {

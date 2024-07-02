@@ -19,6 +19,7 @@ public class FavoriteSong {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private Long favoritedSongId;
     
     @Column(updatable = false)
     private LocalDateTime createdAt;
@@ -58,6 +59,14 @@ public class FavoriteSong {
 
 	public void setSong(Song song) {
 		this.song = song;
+	}
+
+	public Long getFavoritedSongId() {
+		return favoritedSongId;
+	}
+
+	public void setFavoritedSongId(Long favoritedSongId) {
+		this.favoritedSongId = favoritedSongId;
 	}
 
 	public LocalDateTime getCreatedAt() {

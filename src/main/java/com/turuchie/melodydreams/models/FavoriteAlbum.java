@@ -18,6 +18,11 @@ public class FavoriteAlbum {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long albumFavoritedId;
+    private Long userFavoritingAlbumId;
+    private String albumName;
+    private String userFavoritingAlbumUserName;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
@@ -42,7 +47,39 @@ public class FavoriteAlbum {
         this.id = id;
     }
 
-    public User getUser() {
+	public Long getAlbumFavoritedId() {
+		return albumFavoritedId;
+	}
+
+	public void setAlbumFavoritedId(Long albumFavoritedId) {
+		this.albumFavoritedId = albumFavoritedId;
+	}
+
+	public Long getUserFavoritingAlbumId() {
+		return userFavoritingAlbumId;
+	}
+
+	public void setUserFavoritingAlbumId(Long userFavoritingAlbumId) {
+		this.userFavoritingAlbumId = userFavoritingAlbumId;
+	}
+
+	public String getAlbumName() {
+		return albumName;
+	}
+
+	public void setAlbumName(String albumName) {
+		this.albumName = albumName;
+	}
+
+	public String getUserFavoritingAlbumUserName() {
+		return userFavoritingAlbumUserName;
+	}
+
+	public void setUserFavoritingAlbumUserName(String userFavoritingAlbumUserName) {
+		this.userFavoritingAlbumUserName = userFavoritingAlbumUserName;
+	}
+
+	public User getUser() {
         return user;
     }
 

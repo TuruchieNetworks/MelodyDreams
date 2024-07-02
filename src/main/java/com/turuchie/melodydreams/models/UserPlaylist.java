@@ -1,9 +1,7 @@
 package com.turuchie.melodydreams.models;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,7 +9,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -46,9 +43,6 @@ public class UserPlaylist {
     @JoinColumn(name = "song_id")
     private Song song;
 
-    @OneToMany(mappedBy = "userPlaylist", cascade = CascadeType.ALL)
-    private List<FavoritePlaylist> favoritePlaylists;
-
     public UserPlaylist() {
     }
 
@@ -74,14 +68,6 @@ public class UserPlaylist {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public List<FavoritePlaylist> getFavoritePlaylists() {
-		return favoritePlaylists;
-	}
-
-	public void setFavoritePlaylists(List<FavoritePlaylist> favoritePlaylists) {
-		this.favoritePlaylists = favoritePlaylists;
 	}
 
 	public Song getSong() {

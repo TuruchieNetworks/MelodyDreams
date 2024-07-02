@@ -80,9 +80,6 @@ public class Song {
     private List<UserPlaylist> userPlaylists;
 
     @OneToMany(mappedBy = "song", cascade = CascadeType.ALL)
-    private List<FavoritePlaylist> favoritePlaylists;
-
-    @OneToMany(mappedBy = "song", cascade = CascadeType.ALL)
     private List<FavoriteSong> favoriteSongs;
 
     @OneToMany(mappedBy = "song", cascade = CascadeType.ALL)
@@ -207,14 +204,6 @@ public class Song {
 
 	public void setUserPlaylists(List<UserPlaylist> userPlaylists) {
 		this.userPlaylists = userPlaylists;
-	}
-
-	public List<FavoritePlaylist> getFavoritePlaylists() {
-		return favoritePlaylists;
-	}
-
-	public void setFavoritePlaylists(List<FavoritePlaylist> favoritePlaylists) {
-		this.favoritePlaylists = favoritePlaylists;
 	}
 
 	public List<FavoriteSong> getFavoriteSongs() {

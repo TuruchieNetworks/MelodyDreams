@@ -3,6 +3,7 @@ package com.turuchie.melodydreams.controllers;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,72 +66,96 @@ public class UserController {
 	    }
 	
 		@GetMapping("/artists/{id}")
-		public String showOneUser(@PathVariable("id") Long id, Model model, HttpSession session, HttpServletRequest request) {
-		Long userId = (Long) session.getAttribute("user_id");
-	    if (userId == null){
-	    	return "redirect:/melodydreams/login";
-	    } 
+		public String showOneUser(@RequestParam(value = "searchedArtist", required = false) String searchedArtist, 
+			@PathVariable("id") Long id, Model model, HttpSession session, HttpServletRequest request) {
+			Long userId = (Long) session.getAttribute("user_id");
+		    if (userId == null){
+		    	return "redirect:/melodydreams/login";
+		    } 
 
-		User oneUser = userServ.getOne(id);
-	    User loggedInUser = userServ.getOne(userId);
+			User oneUser = userServ.getOne(id);
+		    User loggedInUser = userServ.getOne(userId);
+	
+			if (oneUser == null) {
+		        return "redirect:/melodydreams/login";
+		    }   
 
-		if (oneUser == null) {
-	        return "redirect:/melodydreams/login";
-	    }
+			Long oneUserId = userServ.getOne(id).getId();
 
-        metricsUtil.addMetricsToModel(model);
-        dateUtil.addCurrentDateAttributes(model); 
-	    musicListUtil.setMusicList(model, request);  
-        metricsUtil.addPlaylistDataToModel(model, userId);
-		musicListUtil.setUsersMusicList(model, request, userId);
-		model.addAttribute("loggedInUser", loggedInUser);
-		model.addAttribute("oneUser", oneUser);
-		return "/Users/viewOneUser.jsp";
+		    // Handle search and display
+		    String trimmedSearchTerm = searchedArtist != null ? searchedArtist.trim() : null;
+		    List<User> matchedUsers = Collections.emptyList();
+		    if (trimmedSearchTerm != null && !trimmedSearchTerm.isEmpty()) {
+		        matchedUsers = userServ.getAllUsersMatchingSearchTerm(trimmedSearchTerm);
+		    }
+		    
+		    if (!matchedUsers.isEmpty()) {
+		        List<Song> searchedSongs = artistUtil.searchUsersTrackByCharacter(trimmedSearchTerm);
+		        musicListUtil.setSearchedMusicList(model, request, searchedSongs);
+		        artistUtil.setSearchedArtistAttributes(model, matchedUsers);
+		    } else {
+		        // If the search bar is empty or no users matched, display user playlists
+		        metricsUtil.addMetricsToModel(model);
+		        musicListUtil.setMusicList(model, request); 
+		        artistUtil.setArtistAttributes(model, oneUserId); 
+		        metricsUtil.addPlaylistDataToModel(model, oneUserId); 
+		        musicListUtil.setUsersMusicList(model, request, oneUserId); 
+		    }
+
+		    dateUtil.addCurrentDateAttributes(model); 
+		    model.addAttribute("loggedInUser", loggedInUser);
+		    model.addAttribute("oneUser", oneUser);
+		    return "/Users/viewOneUser.jsp";
 		}
-
 
 		@GetMapping("/artists")
 		public String showAllUsers(@RequestParam(value = "searchedArtist", required = false) String searchedArtist, 
 		@ModelAttribute("playlist") Playlist playlist, Model model, HttpSession session, HttpServletRequest request) {
-		Long userId = (Long) session.getAttribute("user_id");
-	    if (userId == null){
-	    	return "redirect:/melodydreams/login";
-	    } 
+			Long userId = (Long) session.getAttribute("user_id");
+		    if (userId == null){
+		    	return "redirect:/melodydreams/login";
+		    } 
+	
+		    List<Song> allSongs = songServ.getAll();
 
-	    List<Song> allSongs = songServ.getAll();
+		    // Handle search and display
+		    String trimmedSearchTerm = searchedArtist != null ? searchedArtist.trim() : null;
+		    if (trimmedSearchTerm != null && !trimmedSearchTerm.isEmpty()) {
+		        List<User> matchedUsers = userServ.getAllUsersMatchingSearchTerm(trimmedSearchTerm);
+		        if (!matchedUsers.isEmpty()) {
+		            List<Song> searchedSongs = artistUtil.searchUsersTrackByCharacter(trimmedSearchTerm);
+		            musicListUtil.setSearchedMusicList(model, request, searchedSongs);
+		            artistUtil.setSearchedArtistAttributes(model, matchedUsers);
+		        } else {
+		            // Handle the case where no users are found
+		            model.addAttribute("searchError", "No users found matching the provided term.");
+		            musicListUtil.setMusicList(model, request);
+		            artistUtil.setArtistAttributes(model, userId); 
+		        }
+		    } else {
+		        // If the search bar is empty, display user playlists
+		        musicListUtil.setMusicList(model, request);  
+		        artistUtil.setArtistAttributes(model, userId); 
+		    }
 
-	    // Handle search and display
-	    String trimmedSearchTerm = searchedArtist != null ? searchedArtist.trim() : null;
-	    if (trimmedSearchTerm != null && !trimmedSearchTerm.isEmpty()) {
-	        // If a non-empty search value is provided
-	        long searchedId = userServ.getOneUserByName(trimmedSearchTerm).getId();
-	        metricsUtil.addPlaylistDataToModel(model, searchedId); 
-	        musicListUtil.setUsersMusicList(model, request, searchedId);
-	    } else {
-	        // If the search bar is empty, display user playlists
-		    metricsUtil.addMetricsToModel(model);
-		    musicListUtil.setMusicList(model, request);  
-	        metricsUtil.addPlaylistDataToModel(model, userId);  
-	        musicListUtil.setUsersMusicList(model, request, userId);
-	    }
-       
-        User loggedInUser = userServ.getOne(userId);
-        dateUtil.addCurrentDateAttributes(model);
-		model.addAttribute("loggedInUser", loggedInUser);
-		model.addAttribute("playlistError", "Title Is Required!");		
-		model.addAttribute("allSongs", allSongs);
-		model.addAttribute("allUsers", userServ.findAll());
-
-		return "Dashboard/Landing.jsp";
+		    User loggedInUser = userServ.getOne(userId);
+		    dateUtil.addCurrentDateAttributes(model);
+		    model.addAttribute("loggedInUser", loggedInUser);
+		    model.addAttribute("playlistError", "Title Is Required!");        
+		    model.addAttribute("allSongs", allSongs);
+		    model.addAttribute("allUsers", userServ.findAll());
+		    return "Dashboard/Landing.jsp";
 		}
 
 		@GetMapping("/login")
-		public String defaultLoginRegistration(@ModelAttribute("user") User user, @ModelAttribute("loginUser") LoginUser loginUser) {
+		public String defaultLoginRegistration(@ModelAttribute("user") User user, @ModelAttribute("loginUser") LoginUser loginUser, Model model) {
+			dateUtil.addCurrentDateAttributes(model);
 			return "/Users/Login.jsp";
 		}	
 		
 		@GetMapping("/register")
-		public String loginRegUser(@ModelAttribute("user") User user, @ModelAttribute("loginUser") LoginUser loginUser) {
+		public String loginRegUser(@ModelAttribute("user") User user, @ModelAttribute("loginUser") LoginUser loginUser, Model model) {	        
+			dateUtil.addCurrentDateAttributes(model);
 			return "/Users/Registration.jsp";
 		}
 		

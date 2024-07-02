@@ -83,102 +83,103 @@
 	</h1>	 -->
 
 	<div class="profileShowcase imageCover mid-vert-margin">						      	
-	<div  id="0" class="lead flexCover track-panel id-play-panel panelPlayPauseBtn" style="">
-	    <div id="0" class="flex-panel bright-colors imageCover panel-card full-width" style="">
-	        <div class="flex-panel sm-hor-margin" style="">
-		        <c:out value="Share Your Music With Fans All Over The World!"/>
-		        <span id="id-play-panel-0" class="playpause-icon"></span> <!-- Span to hold the play/pause icon -->
-	        	<span id="" class="upper-panel-play-btn">
-	    			<i id=""  class="upper-track-art-widget fa fa-play-circle fa-5x"></i>
-	    		</span>	
-				<h5 class="word-slicer type-writer lrg-fonts" style="">
-					<c:out value="Please Fill In The Form To Access The Console"/>
-				</h5> 					      
-			 </div> 
-        </div>
- 	</div>
-	<form:form class="profileShowcase lrg-hor-padding" action="/melodydreams/process/register" method="post" modelAttribute="user">
-		<div class="profileShowcase playerCover imageCover bright-cover over-flow">
-		    <div class="form-group party-lights leadShowcase mid-vert-margin">
-		        <label style="text-align:center;">First Name</label>
-		        <form:input path="firstName" class="form-control track-creation-input round-border-radius" placeholder="Please enter first name"/>
-		        <form:errors path="firstName" class="type-writer text-danger columnCover leadShowcase bold-fonts sm-vert-margin"/>
-		    </div>
-
-		    <div class="form-group party-lights leadShowcase mid-margin-bottom">
-		        <label style="text-align:center;">Last Name</label>
-		        <form:input path="lastName" class="form-control track-creation-input round-border-radius" placeholder="Please enter last name"/>
-		        <form:errors path="lastName" class="type-writer text-danger columnCover leadShowcase bold-fonts sm-vert-margin"/>
-		    </div>
-				    
-		  	<div class="form-group party-lights leadShowcase mid-margin-bottom">
-		        <label style="text-align:center;width:100%;">Email</label>
-		        <form:input path="email" class="form-control track-creation-input round-border-radius" placeholder="Please Enter Email Address!" style=""/>
-		        <form:errors path="email" class="type-writer text-danger columnCover leadShowcase bold-fonts sm-vert-margin"/>
-		    </div>
-
-		    <div class="form-group party-lights leadShowcase mid-margin-bottom">
-		        <label style="text-align:center;width:100%;">Password</label>
-		        <form:input type="password" path="password" class="form-control track-creation-input round-border-radius" placeholder="Please Enter Password!" style=""/>
-		        <form:errors path="password" class="type-writer text-danger columnCover leadShowcase bold-fonts sm-vert-margin"/>
-		    </div>
-
-		    <div class="form-group party-lights leadShowcase mid-margin-bottom">
-		        <label>Confirm Password</label>
-		        <form:input path="confirmPassword" class="form-control track-creation-input round-border-radius" placeholder="Please Confirm Password"/>
-		        <form:errors path="confirmPassword" class="type-writer text-danger columnCover leadShowcase bold-fonts sm-vert-margin" />
-		    </div>
-
-		    <div class="form-group party-lights leadShowcase mid-margin-bottom">
-		        <label style="">Date Of Birth</label>
-			    <div class="form-group">
-			        <form:errors path="dateOfBirth" class="type-writer text-danger columnCover leadShowcase bold-fonts sm-vert-margin" />
-			    </div>
-		        <form:input type="date" path="dateOfBirth" style="cursor:pointer;" class="form-control track-creation-input round-border-radius" placeholder="Please Select Date Of Birth!" />
-		    </div>
-
-            <div class="form-group leadShowcase party-lights">
-                <label style="">Gender</label>
-                <form:select path="gender" class="form-control track-creation-input round-border-radius">
-                    <form:option class="form-control leadShowcase" value="" label="Select-Gender"/>
-                    <form:option class="form-control leadShowcase" value="Male" label="Male"/>
-                    <form:option class="form-control leadShowcase" value="Female" label="Female"/>
-                	<form:option class="form-control leadShowcase" value="Other" label="Other"/>
-                </form:select>
-                <form:errors path="gender" class="type-writer text-danger columnCover leadShowcase bold-fonts sm-vert-margin"/>
-           </div>
-
+		<div  id="0" class="lead flexCover track-panel id-play-panel panelPlayPauseBtn" style="">
+		    <div id="0" class="flex-panel bright-flash imageCover panel-card full-width" style="">
+		        <div class="flex-panel sm-hor-margin" style="">
+			        <c:out value="Share Your Music With Fans All Over The World Today, ${currentDateTime}!"/>
+			        <span id="id-play-panel-0" class="playpause-icon"></span> <!-- Span to hold the play/pause icon -->
+		        	<span id="" class="upper-panel-play-btn">
+		    			<i id=""  class="upper-track-art-widget fa fa-play-circle fa-5x"></i>
+		    		</span>	
+					<h5 class="word-slicer type-writer lrg-fonts" style="">
+						<c:out value="Please Fill In The Form To Access The Console!"/>
+					</h5> 					      
+				 </div> 
+	        </div>
 	 	</div>
-		<div class="form-group party-lights bluebtn mid-vert-margin"style="">
-		  	<div class="form-group flexCover" style="">
-		    	<input type="submit" value="Create New Account" class="leadShowcase submit-track" id="submitBtn"/>
-				<a href="/melodydreams/login" class="word-slicer btn btn-outline-warning leadShowcase back-btn" style="">
-					<c:out value="Already Have An Account?"/>
-		 		</a>
-		    </div>
-		</div>
- 	</form:form>	    
-    <div id="0" class="flex-panel bright-flash imageCover panel-card sm-vert-margin" style="">
-        <div class="flex-panel sm-hor-margin" style="">
-        	<span id="" class="leadShowcase">
-        		<c:out value="Creativity Lives Within!"/>
-	   		</span> 
-	        <!--<span id="id-play-panel-0" class="playpause-icon"></span>  Span to hold the play/pause icon -->
-        	<span id="" class="upper-panel-play-btn">
-   				<i id=""  class="track-art-widget fa fa-play-circle fa-5x"></i>
-	   		</span> 						      
-		 </div>
-    </div>
-</div>
+		<form:form class="profileShowcase lrg-padding" action="/melodydreams/process/register" method="post" modelAttribute="user">
+			<div class="profileShowcase imageCover bright-cover over-flow">
+			    <div class="form-group party-lights leadShowcase mid-vert-margin">
+			        <label style="text-align:center;">First Name</label>
+			        <form:input path="firstName" class="form-control track-creation-input round-border-radius" placeholder="Please enter first name"/>
+			        <form:errors path="firstName" class="type-writer text-danger columnCover leadShowcase bold-fonts sm-vert-margin"/>
+			    </div>
 	
-<link rel="stylesheet" href="/styles/main_player.css"/>	
-<link rel="stylesheet" href="/styles/privateStyles.css"/>	
+			    <div class="form-group party-lights leadShowcase mid-margin-bottom">
+			        <label style="text-align:center;">Last Name</label>
+			        <form:input path="lastName" class="form-control track-creation-input round-border-radius" placeholder="Please enter last name"/>
+			        <form:errors path="lastName" class="type-writer text-danger columnCover leadShowcase bold-fonts sm-vert-margin"/>
+			    </div>
+					    
+			  	<div class="form-group party-lights leadShowcase mid-margin-bottom">
+			        <label style="text-align:center;width:100%;">Email</label>
+			        <form:input path="email" class="form-control track-creation-input round-border-radius" placeholder="Please Enter Email Address!" style=""/>
+			        <form:errors path="email" class="type-writer text-danger columnCover leadShowcase bold-fonts sm-vert-margin"/>
+			    </div>
+	
+			    <div class="form-group party-lights leadShowcase mid-margin-bottom">
+			        <label style="text-align:center;width:100%;">Password</label>
+			        <form:input type="password" path="password" class="form-control track-creation-input round-border-radius" placeholder="Please Enter Password!" style=""/>
+			        <form:errors path="password" class="type-writer text-danger columnCover leadShowcase bold-fonts sm-vert-margin"/>
+			    </div>
+	
+			    <div class="form-group party-lights leadShowcase mid-margin-bottom">
+			        <label>Confirm Password</label>
+			        <form:input type="password" path="confirmPassword" class="form-control track-creation-input round-border-radius" placeholder="Please Confirm Password"/>
+			        <form:errors path="confirmPassword" class="type-writer text-danger columnCover leadShowcase bold-fonts sm-vert-margin" />
+			    </div>
+	
+			    <div class="form-group party-lights leadShowcase mid-margin-bottom">
+			        <label style="">Date Of Birth</label>
+				    <div class="form-group">
+				        <form:errors path="dateOfBirth" class="type-writer text-danger columnCover leadShowcase bold-fonts sm-vert-margin" />
+				    </div>
+			        <form:input type="date" path="dateOfBirth" style="cursor:pointer;" class="form-control track-creation-input round-border-radius" placeholder="Please Select Date Of Birth!" />
+			    </div>
+	
+	            <div class="form-group leadShowcase party-lights">
+	                <label style="">Gender</label>
+	                <form:select path="gender" class="form-control track-creation-input round-border-radius">
+	                    <form:option class="form-control leadShowcase" value="" label="Select-Gender"/>
+	                    <form:option class="form-control leadShowcase" value="Male" label="Male"/>
+	                    <form:option class="form-control leadShowcase" value="Female" label="Female"/>
+	                	<form:option class="form-control leadShowcase" value="Other" label="Other"/>
+	                </form:select>
+	                <form:errors path="gender" class="type-writer text-danger columnCover leadShowcase bold-fonts mid-vert-margin"/>
+	           </div>
+	
+		 	</div>
+			<div class="form-group party-lights bluebtn mid-vert-margin"style="">
+			  	<div class="form-group flexCover" style="">
+			    	<input type="submit" value="Create New Account Today, ${dayCurrentDateTime}" class="leadShowcase submit-track" id="submitBtn"/>
+					<a href="/melodydreams/login" class="word-slicer btn btn-outline-warning leadShowcase back-btn" style="">
+						<c:out value="Already Have An Account?"/>
+			 		</a>
+			    </div>
+			</div>
+	 	</form:form>	    
+	    <div id="0" class="flex-panel bright-flash imageCover panel-card sm-vert-margin" style="">
+	        <div class="flex-panel sm-hor-margin" style="">
+	        	<span id="" class="leadShowcase">
+	        		<c:out value="Creativity Lives Within!"/>
+		   		</span> 
+		        <!--<span id="id-play-panel-0" class="playpause-icon"></span>  Span to hold the play/pause icon -->
+	        	<span id="" class="upper-panel-play-btn">
+	   				<i id=""  class="track-art-widget fa fa-play-circle fa-5x"></i>
+		   		</span> 						      
+			 </div>
+	    </div>
+	</div>
 <!--  -->
 <script src="<c:url value='/scripts/player.js'/>"></script>
 <script src="<c:url value='/scripts/randomBackgrounds.js'/>"></script>
 <script src="<c:url value='/scripts/dynamicWidgets.js'/>"></script>
+<script src="<c:url value='/scripts/dynamicPlaylistWidgets.js'/>"></script>
 <script src="<c:url value='/scripts/loadedPanelEvents.js'/>"></script>
 <script src="<c:url value='/scripts/socials.js'/>"></script>
 <script src="<c:url value='/scripts/uploads.js'/>"></script>
 </body>
 </html>
+	
+<link rel="stylesheet" href="/styles/main_player.css"/>	
+<link rel="stylesheet" href="/styles/privateStyles.css"/>	

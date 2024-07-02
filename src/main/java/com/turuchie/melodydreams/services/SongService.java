@@ -1,8 +1,11 @@
 package com.turuchie.melodydreams.services;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,14 +37,50 @@ public class SongService {
         return song.isPresent() ? song.get() : null;
     }
 
+    public List<Song> getAll() {
+        return (List<Song>) songRepo.findAll();
+    }
+
     public Song getOneTrackTitle(String trackTitle) {
         Optional<Song> song = songRepo.findByTrackTitle(trackTitle);
         return song.isPresent() ? song.get() : null;
     }
 
-    public List<Song> getAll() {
-        return (List<Song>) songRepo.findAll();
+    // Method To Search Single Song
+    public List<Song> getSongsByLetters(String letters) {
+        if (letters == null || letters.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Iterable<Song> allSongs = songRepo.findAll();
+        List<Song> filteredSongs = new ArrayList<>();
+
+        for (Song song : allSongs) {
+            String searchedTrackTitle = song.getTrackTitle();
+            if (searchedTrackTitle != null && searchedTrackTitle.contains(letters)) {
+                filteredSongs.add(song);
+            }
+        }
+
+        return filteredSongs;
     }
+
+    public List<Song> getAllSongsMatchingSearchTerm(String searchTerm) {
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Song> songs = songRepo.findAll();
+        return songs.stream()
+                .filter(song -> 
+                        (song.getTrackTitle() != null && song.getTrackTitle().contains(searchTerm)) ||
+                        (song.getUser() != null && 
+                         ((song.getUser().getFirstName() != null && song.getUser().getFirstName().contains(searchTerm)) ||
+                          (song.getUser().getLastName() != null && song.getUser().getLastName().contains(searchTerm))))
+                )
+                .collect(Collectors.toList());
+    }
+
  
     /**
      * Create a new song.
